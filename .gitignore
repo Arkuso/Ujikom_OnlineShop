@@ -1,0 +1,25 @@
+# ======================
+# Frontend (Next.js)
+# ======================
+node_modules/
+.next/
+out/
+.env
+.env.local
+
+# ======================
+# Backend (.NET / C#)
+# ======================
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# ======================
+# OS & Editor
+# ======================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

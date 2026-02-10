@@ -1,6 +1,11 @@
-﻿namespace Backend.Services.Interfaces
+﻿using Backend.DTOs;
+using Backend.DTOs.Auth;
+
+namespace Backend.Services.Interfaces
 {
-    public class IAuthService
+    public interface IAuthService
     {
+        Task<ServiceResponse<int>> Register(RegisterRequest request);
+        Task<ServiceResponse<string>> Login(LoginRequest request);
     }
 }

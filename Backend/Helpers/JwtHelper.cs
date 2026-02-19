@@ -20,24 +20,32 @@ namespace Backend.Helpers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Email), // Using Email as Name for simplicity or Name property
+                new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration.GetSection("AppSettings:Token").Value ?? "SuperSecretKey12345678901234567890")); // Fallback key if config missing
+            var tokenValue = _configuration.GetSection("AppSettings:Token").Value;
+            if (string.IsNullOrEmpty(tokenValue))
+            {
+                // Fallback key (pastikan minimal 512 bit untuk HmacSha512)
+                tokenValue = "SuperSecretKey12345678901234567890SuperSecretKey12345678901234567890";
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenValue));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: creds
-            );
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = creds
+            };
 
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return jwt;
+            return tokenHandler.WriteToken(token);
         }
     }
 }

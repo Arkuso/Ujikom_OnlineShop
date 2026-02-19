@@ -1,6 +1,11 @@
-﻿namespace Backend.Services.Interfaces
+﻿using Backend.DTOs;
+using Backend.DTOs.Order;
+
+namespace Backend.Services.Interfaces
 {
-    public class IOrderService
+    public interface IOrderService
     {
+        Task<ServiceResponse<OrderDto>> Checkout();
+        Task<ServiceResponse<List<OrderDto>>> GetMyOrders();
     }
 }

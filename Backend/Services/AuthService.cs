@@ -1,4 +1,5 @@
-﻿using Backend.Data;
+﻿using AutoMapper;
+using Backend.Data;
 using Backend.DTOs;
 using Backend.DTOs.Auth;
 using Backend.Helpers;
@@ -12,11 +13,13 @@ namespace Backend.Services
     {
         private readonly AppDbContext _context;
         private readonly JwtHelper _jwtHelper;
+        private readonly IMapper _mapper;
 
-        public AuthService(AppDbContext context, JwtHelper jwtHelper)
+        public AuthService(AppDbContext context, JwtHelper jwtHelper, IMapper mapper)
         {
             _context = context;
             _jwtHelper = jwtHelper;
+            _mapper = mapper;
         }
 
         public async Task<ServiceResponse<string>> Login(LoginRequest request)
@@ -53,13 +56,11 @@ namespace Backend.Services
                 return response;
             }
 
-            var user = new User
-            {
-                Name = request.Name,
-                Email = request.Email,
-                PasswordHash = PasswordHasher.HashPassword(request.Password),
-                Role = "Customer" // Default role
-            };
+            // Gunakan Mapper untuk Name, Email, Role
+            var user = _mapper.Map<User>(request);
+
+            // Hash password manual
+            user.PasswordHash = PasswordHasher.HashPassword(request.Password);
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

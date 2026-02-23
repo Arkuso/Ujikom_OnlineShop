@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FOAJ2f6ML+4=",
+  "dgSpecHash": "dJodo5ZAwh0=",
   "success": true,
-  "projectFilePath": "D:\\Project_Ujikom\\OnlineShop\\Backend\\Backend.csproj",
+  "projectFilePath": "D:\\Project_Ujikom\\OnlineShop\\backend\\Backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\syaid\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\syaid\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

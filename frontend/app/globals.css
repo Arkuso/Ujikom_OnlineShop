@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Custom styles for Bratro-like theme */
+@layer base {
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+  }
+}

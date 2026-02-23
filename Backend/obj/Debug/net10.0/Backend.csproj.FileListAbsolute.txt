@@ -356,7 +356,6 @@ D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\staticwebassets.build.jso
 D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\staticwebassets.development.json
 D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\staticwebassets.build.endpoints.json
 D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\swae.build.ex.cache
-D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\Backend.csproj.Up2Date
 D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\Backend.dll
 D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\refint\Backend.dll

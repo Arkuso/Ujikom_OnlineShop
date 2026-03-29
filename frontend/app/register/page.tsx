@@ -1,8 +1,12 @@
 "use client";
 
+import authService from "@/services/authService";
+import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,123 +20,110 @@ export default function RegisterPage() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5055/api/Auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
+      const response = await authService.register({ name, email, password });
 
-      const data = await res.json();
-
-      if (data.success) {
+      if (response.success) {
         setSuccess(true);
-        setMessage(`Register berhasil! User ID: ${data.data}`);
+        setMessage("Membership created successfully. Redirecting...");
         setName("");
         setEmail("");
         setPassword("");
+        
+        setTimeout(() => {
+           router.push("/login");
+        }, 2000);
       } else {
         setSuccess(false);
-        setMessage(`Register gagal: ${data.message}`);
+        setMessage(`Error: ${response.message}`);
       }
-    } catch (error) {
+    } catch {
       setSuccess(false);
-      setMessage("Tidak bisa terhubung ke server. Pastikan backend sudah jalan.");
+      setMessage("Connection error. Check backend signal.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-black">Create Account</h1>
-          <p className="text-gray-500 mt-2 text-sm">Join us and start shopping today</p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#E6D3B1] px-6 py-24 relative overflow-hidden">
+      {/* Abstract Elements */}
+      <div className="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-[#7A3E2D]/5 blur-[100px] rounded-full"></div>
+      <div className="absolute bottom-[-10%] left-[-10%] w-[350px] h-[350px] bg-[#7A3E2D]/5 blur-[80px] rounded-full"></div>
 
-        {/* Form Card */}
-        <div className="bg-white p-8 shadow-sm border border-gray-200">
-          <form onSubmit={handleRegister} className="space-y-5">
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 tracking-wide mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:border-black transition"
-                placeholder="Enter your full name"
+      <div className="w-full max-w-lg relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+        <div className="bg-white p-12 md:p-16 rounded-3xl shadow-2xl border border-white">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-[#171717] tracking-tight mb-4">Join Gravity</h1>
+            <p className="text-[#171717]/40 text-sm font-medium">Create your unique profile for a refined experience.</p>
+          </div>
+
+          <form onSubmit={handleRegister} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4">Full Identity</label>
+              <input 
+                required 
+                type="text" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                className="w-full h-16 px-8 bg-[#F7F7F7] border border-black/5 focus:border-[#7A3E2D]/30 focus:bg-white focus:ring-4 focus:ring-[#7A3E2D]/5 outline-none text-sm font-bold text-[#171717] transition-all rounded-2xl placeholder:text-gray-300" 
+                placeholder="John Doe" 
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 tracking-wide mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:border-black transition"
-                placeholder="Enter your email"
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4">Email Channel</label>
+              <input 
+                required 
+                type="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                className="w-full h-16 px-8 bg-[#F7F7F7] border border-black/5 focus:border-[#7A3E2D]/30 focus:bg-white focus:ring-4 focus:ring-[#7A3E2D]/5 outline-none text-sm font-bold text-[#171717] transition-all rounded-2xl placeholder:text-gray-300" 
+                placeholder="name@example.com" 
               />
             </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 tracking-wide mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4">Access Pass</label>
+              <input 
+                required 
+                type="password" 
+                value={password} 
                 minLength={6}
-                className="w-full border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:border-black transition"
-                placeholder="Minimum 6 characters"
+                onChange={(e) => setPassword(e.target.value)} 
+                className="w-full h-16 px-8 bg-[#F7F7F7] border border-black/5 focus:border-[#7A3E2D]/30 focus:bg-white focus:ring-4 focus:ring-[#7A3E2D]/5 outline-none text-sm font-bold text-[#171717] transition-all rounded-2xl placeholder:text-gray-300" 
+                placeholder="Min. 6 characters" 
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-black text-white py-3 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 disabled:bg-gray-400 transition"
+            {message && (
+              <div className={`p-6 text-xs font-bold uppercase tracking-widest leading-relaxed rounded-2xl border animate-in fade-in duration-500 ${success ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-rose-50 text-rose-700 border-rose-100"}`}>
+                {message}
+              </div>
+            )}
+
+            <button 
+              type="submit" 
+              disabled={loading} 
+              className="w-full h-16 bg-[#1A1A1A] text-white text-sm font-bold rounded-xl hover:bg-black transition-all active:scale-95 shadow-xl shadow-black/10 flex items-center justify-center gap-4 mt-8"
             >
-              {loading ? "Creating account..." : "Register"}
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              ) : (
+                "Initialize Membership"
+              )}
             </button>
           </form>
 
-          {/* Message */}
-          {message && (
-            <div
-              className={`mt-5 p-4 text-sm ${
-                success
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
-              }`}
-            >
-              {message}
-            </div>
-          )}
-
-          {/* Divider */}
-          <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <p className="text-sm text-gray-500">
-              Already have an account?{" "}
-              <a href="/login" className="text-black font-semibold hover:underline">
-                Sign In
-              </a>
-            </p>
-          </div>
+          <p className="mt-12 text-center text-xs font-bold text-gray-400 uppercase tracking-widest">
+            Existing Member? <br />
+            <Link href="/login" className="text-[#7A3E2D] hover:opacity-70 transition-opacity underline block mt-4">Authorize Now</Link>
+          </p>
         </div>
-
-        {/* Debug Info */}
-        <div className="mt-4 text-xs text-gray-400 text-center">
-          <p>API: POST http://localhost:5055/api/Auth/register</p>
+        
+        <div className="mt-12 text-center">
+           <Link href="/" className="text-[10px] font-bold text-[#171717]/20 hover:text-[#7A3E2D] uppercase tracking-widest transition-colors italic">
+              ← Return Home
+           </Link>
         </div>
       </div>
     </div>

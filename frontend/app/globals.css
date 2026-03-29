@@ -1,8 +1,90 @@
 @import "tailwindcss";
 
-/* Custom styles for Bratro-like theme */
+@font-face {
+  font-family: "Vercetti";
+  src: url("/Font/Vercetti-Regular/Vercetti%20Regular/OpenType%20WOFFs/Vercetti-Regular.woff2") format("woff2"),
+       url("/Font/Vercetti-Regular/Vercetti%20Regular/OpenType%20WOFFs/Vercetti-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Obrazec2";
+  src: url("/Font/Obrazec2%20-%20FREE/Obrazec%20-%20FREE/Obrazec-2.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AHSuperDuper";
+  src: url("/Font/AH_SuperDuper/AH_SuperDuper/AH_SuperDuper-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Kursiku-Inspired Coffee & Sand Modern Theme */
 @layer base {
+  :root {
+    --brand-primary: #7A3E2D;   /* Deep Burgundy/Coffee */
+    --brand-bg: #E6D3B1;        /* Sand/Warm Beige */
+    --brand-secondary: #E6D3B1; 
+    --brand-white: #FFFFFF;
+    --brand-text: #171717;
+    --brand-text-muted: #6B7280;
+    --brand-accent: #1A1A1A;    /* Dark Charcoal/Kursiku Buttons */
+    --radius-kursiku: 1.5rem;
+  }
+
   body {
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background-color: var(--brand-bg);
+    color: var(--brand-text);
+    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  /* Custom scrollbar to match minimalist theme */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(122, 62, 45, 0.2); /* Burgundy thumb */
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(122, 62, 45, 0.3);
+  }
+}
+
+@layer utilities {
+  .font-vercetti {
+    font-family: "Vercetti", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .font-obrazec2 {
+    font-family: "Obrazec2", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .font-ahsuperduper {
+    font-family: "AHSuperDuper", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .kursiku-card {
+    @apply bg-white rounded-3xl shadow-sm border border-black/5 overflow-hidden;
+  }
+  .kursiku-button-dark {
+    @apply bg-[#1A1A1A] text-white rounded-xl px-10 py-5 font-bold transition-all hover:bg-black active:scale-95 disabled:opacity-50;
+  }
+  .kursiku-button-primary {
+    @apply bg-[#7A3E2D] text-white rounded-xl px-10 py-5 font-bold transition-all hover:bg-[#5C2D21] active:scale-95 disabled:opacity-50;
+  }
+  .kursiku-heading {
+    @apply font-bold tracking-tight text-[#171717];
   }
 }

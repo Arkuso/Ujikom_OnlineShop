@@ -20,4 +20,9 @@ namespace Backend.DTOs.Cart
         public int ProductId { get; set; }
         public int Quantity { get; set; } = 1;
     }
+
+    public class UpdateCartQuantityDto
+    {
+        public int Quantity { get; set; }
+    }
 }

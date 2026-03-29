@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import productService from "@/services/productService";
+import categoryService from "@/services/categoryService";
 
 interface Category {
   id: number;
@@ -34,25 +36,12 @@ export default function EditProductPage() {
   const [quantityToAdd, setQuantityToAdd] = useState("");
   const [stockLoading, setStockLoading] = useState(false);
 
-  useEffect(() => {
-    fetchProduct();
-    fetchCategories();
-  }, [productId]);
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
-      const res = await fetch(
-        `http://localhost:5055/api/Product/${productId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      const data = await res.json();
+      const response = await productService.getById(Number(productId));
 
-      if (data.success) {
-        const p = data.data;
+      if (response.success && response.data) {
+        const p = response.data;
         setName(p.name);
         setDescription(p.description || "");
         setPrice(p.price.toString());
@@ -68,19 +57,23 @@ export default function EditProductPage() {
     } finally {
       setFetching(false);
     }
-  };
+  }, [productId]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5055/api/Category");
-      const data = await res.json();
-      if (data.success) {
-        setCategories(data.data);
+      const response = await categoryService.getAll();
+      if (response.success && response.data) {
+        setCategories(response.data);
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProduct();
+    fetchCategories();
+  }, [fetchProduct, fetchCategories]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -96,37 +89,16 @@ export default function EditProductPage() {
     setMessage("");
 
     try {
-      // Use FormData same as create
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("description", description);
-      formData.append("price", price);
-      formData.append("stock", stock);
+      const response = await productService.update(Number(productId), {
+        name,
+        description,
+        price: Number(price),
+        stock: Number(stock),
+        categoryId: Number(categoryId),
+        imageFile: imageFile || undefined,
+      });
 
-      if (categoryId) {
-        formData.append("categoryId", categoryId);
-      }
-      if (categoryName) {
-        formData.append("categoryName", categoryName);
-      }
-      if (imageFile) {
-        formData.append("imageFile", imageFile);
-      }
-
-      const res = await fetch(
-        `http://localhost:5055/api/Product/${productId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
+      if (response.success) {
         setSuccess(true);
         setMessage("Product updated successfully!");
         setTimeout(() => {
@@ -134,7 +106,7 @@ export default function EditProductPage() {
         }, 1500);
       } else {
         setSuccess(false);
-        setMessage(`Failed: ${data.message}`);
+        setMessage(`Failed: ${response.message}`);
       }
     } catch {
       setSuccess(false);
@@ -149,27 +121,17 @@ export default function EditProductPage() {
 
     setStockLoading(true);
     try {
-      const res = await fetch("http://localhost:5055/api/Product/add-stock", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          productId: parseInt(productId as string),
-          quantityToAdd: parseInt(quantityToAdd),
-        }),
-      });
-      const data = await res.json();
+      const qty = parseInt(quantityToAdd);
+      const response = await productService.addStock(Number(productId), qty);
 
-      if (data.success) {
+      if (response.success) {
         setSuccess(true);
         setMessage(`Stock updated! Added ${quantityToAdd} items.`);
-        setStock((parseInt(stock) + parseInt(quantityToAdd)).toString());
+        setStock((parseInt(stock) + qty).toString());
         setQuantityToAdd("");
       } else {
         setSuccess(false);
-        setMessage(`Failed: ${data.message}`);
+        setMessage(`Failed: ${response.message}`);
       }
     } catch {
       setSuccess(false);

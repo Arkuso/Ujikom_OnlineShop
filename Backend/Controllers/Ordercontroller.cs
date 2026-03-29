@@ -24,6 +24,26 @@ namespace Backend.Controllers
             return Ok(await _orderService.GetMyOrders());
         }
 
+        [HttpGet("admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ServiceResponse<List<OrderDto>>>> GetAllOrders()
+        {
+            return Ok(await _orderService.GetAllOrders());
+        }
+
+        [HttpPut("{id}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ServiceResponse<OrderDto>>> UpdateStatus(int id, UpdateOrderStatusDto request)
+        {
+            var response = await _orderService.UpdateOrderStatus(id, request);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
         [HttpPost("checkout")]
         [Authorize]
         public async Task<ActionResult<ServiceResponse<OrderDto>>> Checkout()

@@ -61,6 +61,7 @@ namespace Backend.Services
 
             // Hash password manual
             user.PasswordHash = PasswordHasher.HashPassword(request.Password);
+            user.Role = "Customer";
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

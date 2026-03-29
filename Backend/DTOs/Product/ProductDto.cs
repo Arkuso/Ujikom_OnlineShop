@@ -43,4 +43,22 @@ namespace Backend.DTOs.Product
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
     }
+
+    public class UpdateProductDto
+    {
+        [Required]
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+
+        [Required]
+        public decimal Price { get; set; }
+
+        [Required]
+        public int Stock { get; set; }
+
+        public IFormFile? ImageFile { get; set; }
+
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+    }
 }

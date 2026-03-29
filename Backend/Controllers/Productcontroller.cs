@@ -43,6 +43,18 @@ namespace Backend.Controllers
             return Ok(response);
         }
 
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ServiceResponse<ProductDto>>> UpdateProduct(int id, [FromForm] UpdateProductDto productDto)
+        {
+            var response = await _productService.UpdateProduct(id, productDto);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+
         [HttpPost("add-stock")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResponse<ProductDto>>> AddStock(UpdateStockDto stockDto)

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import productService from "@/services/productService";
 
 interface Product {
   id: number;
@@ -31,14 +32,9 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch("http://localhost:5055/api/Product", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await res.json();
-      if (data.success) {
-        setProducts(data.data);
+      const response = await productService.getAll();
+      if (response.success && response.data) {
+        setProducts(response.data);
       }
     } catch (error) {
       console.error("Failed to fetch:", error);
@@ -51,21 +47,14 @@ export default function ProductsPage() {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
     try {
-      const res = await fetch(`http://localhost:5055/api/Product/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await res.json();
-
-      if (data.success) {
+      const response = await productService.delete(id);
+      if (response.success) {
         setSuccess(true);
         setMessage(`"${name}" has been deleted.`);
         setProducts(products.filter((p) => p.id !== id));
       } else {
         setSuccess(false);
-        setMessage(`Delete failed: ${data.message}`);
+        setMessage(`Delete failed: ${response.message}`);
       }
     } catch {
       setSuccess(false);
@@ -80,26 +69,16 @@ export default function ProductsPage() {
 
     setStockLoading(true);
     try {
-      const res = await fetch("http://localhost:5055/api/Product/add-stock", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          productId,
-          quantityToAdd: parseInt(quantityToAdd),
-        }),
-      });
-      const data = await res.json();
+      const qty = parseInt(quantityToAdd);
+      const response = await productService.addStock(productId, qty);
 
-      if (data.success) {
+      if (response.success) {
         setSuccess(true);
-        setMessage(`Stock updated! Added ${quantityToAdd} items.`);
+        setMessage(`Stock updated! Added ${qty} items.`);
         setProducts(
           products.map((p) =>
             p.id === productId
-              ? { ...p, stock: p.stock + parseInt(quantityToAdd) }
+              ? { ...p, stock: p.stock + qty }
               : p
           )
         );
@@ -107,7 +86,7 @@ export default function ProductsPage() {
         setQuantityToAdd("");
       } else {
         setSuccess(false);
-        setMessage(`Failed: ${data.message}`);
+        setMessage(`Failed: ${response.message}`);
       }
     } catch {
       setSuccess(false);

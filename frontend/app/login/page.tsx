@@ -1,148 +1,107 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import authService from "@/services/authService";
+import { useAuthStore } from "@/lib/useAuthstore";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const login = useAuthStore((state) => state.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [token, setToken] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
-    setToken("");
+    setError("");
 
     try {
-      const res = await fetch("http://localhost:5055/api/Auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setSuccess(true);
-        setToken(data.data);
-        setMessage("Login berhasil!");
-        localStorage.setItem("token", data.data);
+      const response = await authService.login({ email, password });
+      if (response.success && response.data) {
+        login(response.data.user, response.data.token);
+        window.dispatchEvent(new Event('storage')); // Force profile update
+        router.push("/");
       } else {
-        setSuccess(false);
-        setMessage(`Login gagal: ${data.message}`);
+        setError(response.message || "Invalid credentials.");
       }
-    } catch (error) {
-      setSuccess(false);
-      setMessage("Tidak bisa terhubung ke server. Pastikan backend sudah jalan.");
+    } catch {
+      setError("Cannot connect to server. Check your connection.");
     } finally {
       setLoading(false);
     }
   };
 
-  const decodeToken = (jwt: string) => {
-    try {
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
-      return JSON.stringify(payload, null, 2);
-    } catch {
-      return "Gagal decode token";
-    }
-  };
-
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-black">Sign In</h1>
-          <p className="text-gray-500 mt-2 text-sm">Welcome back! Please enter your details</p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#E6D3B1] px-6 py-24 relative overflow-hidden">
+      {/* Abstract Elements */}
+      <div className="absolute top-[-10%] left-[-5%] w-100 h-100 bg-[#7A3E2D]/5 blur-[100px] rounded-full"></div>
+      <div className="absolute bottom-[-10%] right-[-5%] w-75 h-75 bg-[#7A3E2D]/5 blur-[80px] rounded-full"></div>
 
-        {/* Form Card */}
-        <div className="bg-white p-8 shadow-sm border border-gray-200">
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 tracking-wide mb-2">
-                Email Address
-              </label>
+      <div className="w-full max-w-lg relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+        <div className="bg-white p-12 md:p-16 rounded-[4rem] shadow-2xl border border-white">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-[#171717] tracking-tight mb-4">Welcome Back</h1>
+            <p className="text-[#171717]/40 text-sm font-medium">Access your personal collection and history.</p>
+          </div>
+
+          {error && (
+            <div className="mb-8 p-4 bg-rose-50 border border-rose-100 text-xs font-bold text-rose-600 uppercase tracking-widest rounded-2xl text-center">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4">Email Channel</label>
               <input
                 type="email"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:border-black transition"
-                placeholder="Enter your email"
+                className="w-full h-16 px-8 bg-[#F7F7F7] border border-black/5 focus:border-[#7A3E2D]/30 focus:bg-white focus:ring-4 focus:ring-[#7A3E2D]/5 outline-none text-sm font-bold text-[#171717] transition-all rounded-2xl placeholder:text-gray-300" 
+                placeholder="name@example.com"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 tracking-wide mb-2">
-                Password
-              </label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4">Access Key</label>
               <input
                 type="password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:border-black transition"
-                placeholder="Enter your password"
+                className="w-full h-16 px-8 bg-[#F7F7F7] border border-black/5 focus:border-[#7A3E2D]/30 focus:bg-white focus:ring-4 focus:ring-[#7A3E2D]/5 outline-none text-sm font-bold text-[#171717] transition-all rounded-2xl placeholder:text-gray-300" 
+                placeholder="••••••••"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white py-3 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 disabled:bg-gray-400 transition"
+              className="w-full h-16 bg-[#1A1A1A] text-white text-sm font-bold rounded-xl hover:bg-black transition-all active:scale-95 shadow-xl shadow-black/10 flex items-center justify-center gap-4 mt-10"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              ) : (
+                "Authenticate Access"
+              )}
             </button>
           </form>
 
-          {/* Message */}
-          {message && (
-            <div
-              className={`mt-5 p-4 text-sm ${
-                success
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
-              }`}
-            >
-              {message}
-            </div>
-          )}
-
-          {/* JWT Token Debug */}
-          {token && (
-            <div className="mt-5 space-y-3">
-              <div className="p-4 bg-gray-50 border border-gray-200">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">JWT Token</p>
-                <p className="text-xs text-gray-600 break-all font-mono leading-relaxed">{token}</p>
-              </div>
-              <div className="p-4 bg-gray-50 border border-gray-200">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Decoded Payload</p>
-                <pre className="text-xs text-gray-600 font-mono whitespace-pre-wrap leading-relaxed">
-                  {decodeToken(token)}
-                </pre>
-              </div>
-            </div>
-          )}
-
-          {/* Divider */}
-          <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <p className="text-sm text-gray-500">
-              Don&apos;t have an account?{" "}
-              <a href="/register" className="text-black font-semibold hover:underline">
-                Create Account
-              </a>
-            </p>
-          </div>
+          <p className="mt-12 text-center text-xs font-bold text-gray-400 uppercase tracking-widest">
+            New to Gravity? <br />
+            <Link href="/register" className="text-[#7A3E2D] hover:opacity-70 transition-opacity underline block mt-4">Create Membership</Link>
+          </p>
         </div>
 
-        {/* Debug Info */}
-        <div className="mt-4 text-xs text-gray-400 text-center">
-          <p>API: POST http://localhost:5055/api/Auth/login</p>
+        <div className="mt-12 text-center">
+           <Link href="/" className="text-[10px] font-bold text-[#171717]/20 hover:text-[#7A3E2D] uppercase tracking-widest transition-colors italic">
+              ← Return Home
+           </Link>
         </div>
       </div>
     </div>

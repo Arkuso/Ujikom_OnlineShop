@@ -25,10 +25,9 @@ namespace Backend.Helpers
             };
 
             var tokenValue = _configuration.GetSection("AppSettings:Token").Value;
-            if (string.IsNullOrEmpty(tokenValue))
+            if (string.IsNullOrWhiteSpace(tokenValue))
             {
-                // Fallback key (pastikan minimal 512 bit untuk HmacSha512)
-                tokenValue = "SuperSecretKey12345678901234567890SuperSecretKey12345678901234567890";
+                throw new InvalidOperationException("JWT secret is missing. Set AppSettings:Token in configuration.");
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenValue));

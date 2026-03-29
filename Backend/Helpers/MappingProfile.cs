@@ -19,13 +19,17 @@ namespace Backend.Helpers
             CreateMap<CreateProductDto, Product>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.Ignore()); // Ignore ImageUrl as it's handled manually in Service
 
+            CreateMap<UpdateProductDto, Product>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
+
             // === Category Mapping ===
             CreateMap<Category, CategoryDto>();
             CreateMap<CreateCategoryDto, Category>();
 
             // === User/Auth Mapping ===
             CreateMap<RegisterRequest, User>()
-                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()); // Ignore PasswordHash karena akan di-hash manual
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.Role, opt => opt.Ignore());
             // CreateMap<User, UserDto>(); // Jika nanti ada UserDto
 
             // === Cart Mapping ===
@@ -43,6 +47,8 @@ namespace Backend.Helpers
 
             // === Order Mapping ===
             CreateMap<Order, OrderDto>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User != null ? src.User.Email : string.Empty))
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderProducts));
 
             CreateMap<OrderProduct, OrderItemDto>()

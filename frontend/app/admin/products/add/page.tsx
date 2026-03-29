@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import productService from "@/services/productService";
+import categoryService from "@/services/categoryService";
 
 interface Category {
   id: number;
@@ -32,10 +34,9 @@ export default function AddProductPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5055/api/Category");
-      const data = await res.json();
-      if (data.success) {
-        setCategories(data.data);
+      const response = await categoryService.getAll();
+      if (response.success && response.data) {
+        setCategories(response.data);
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
@@ -56,34 +57,16 @@ export default function AddProductPage() {
     setMessage("");
 
     try {
-      // Backend uses [FromForm] so we send FormData
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("description", description);
-      formData.append("price", price);
-      formData.append("stock", stock);
-
-      if (categoryId) {
-        formData.append("categoryId", categoryId);
-      }
-      if (categoryName) {
-        formData.append("categoryName", categoryName);
-      }
-      if (imageFile) {
-        formData.append("imageFile", imageFile);
-      }
-
-      const res = await fetch("http://localhost:5055/api/Product", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: formData,
+      const response = await productService.create({
+        name,
+        description,
+        price: Number(price),
+        stock: Number(stock),
+        categoryId: Number(categoryId),
+        imageFile: imageFile || undefined,
       });
 
-      const data = await res.json();
-
-      if (data.success) {
+      if (response.success) {
         setSuccess(true);
         setMessage("Product created successfully!");
         setTimeout(() => {
@@ -91,7 +74,7 @@ export default function AddProductPage() {
         }, 1500);
       } else {
         setSuccess(false);
-        setMessage(`Failed: ${data.message}`);
+        setMessage(`Failed: ${response.message}`);
       }
     } catch {
       setSuccess(false);

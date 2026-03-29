@@ -7,5 +7,7 @@ namespace Backend.Services.Interfaces
     {
         Task<ServiceResponse<OrderDto>> Checkout();
         Task<ServiceResponse<List<OrderDto>>> GetMyOrders();
+        Task<ServiceResponse<List<OrderDto>>> GetAllOrders();
+        Task<ServiceResponse<OrderDto>> UpdateOrderStatus(int orderId, UpdateOrderStatusDto request);
     }
 }

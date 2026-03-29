@@ -81,16 +81,19 @@ namespace Backend.Services
 
             if (productDto.ImageFile != null)
             {
-                // Buat nama file unik (misal: guid_namafile.jpg)
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + productDto.ImageFile.FileName;
+                // Pastikan WebRootPath tidak null (null jika folder wwwroot belum ada)
+                var webRootPath = _environment.WebRootPath
+                    ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
 
                 // Tentukan folder penyimpanan (wwwroot/images)
-                string uploadsFolder = Path.Combine(_environment.WebRootPath, "images");
+                string uploadsFolder = Path.Combine(webRootPath, "images");
 
                 // Buat folder jika belum ada
                 if (!Directory.Exists(uploadsFolder))
                     Directory.CreateDirectory(uploadsFolder);
 
+                // Buat nama file unik menggunakan GUID + ekstensi asli
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(productDto.ImageFile.FileName);
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                 // Simpan file fisik
@@ -100,7 +103,7 @@ namespace Backend.Services
                 }
 
                 // Set URL gambar untuk disimpan di database
-                // Contoh: /images/guid_namafile.jpg
+                // Contoh: /images/guid.jpg
                 imageUrl = "/images/" + uniqueFileName;
             }
 
@@ -118,6 +121,84 @@ namespace Backend.Services
             response.Data.CategoryName = category.Name; // Set manual karena Product.Category mungkin null (EF Core belum load ulang)
 
             response.Message = "Product created successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<ProductDto>> UpdateProduct(int id, UpdateProductDto productDto)
+        {
+            var response = new ServiceResponse<ProductDto>();
+            var product = await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                response.Success = false;
+                response.Message = "Product not found.";
+                return response;
+            }
+
+            // 1. Validasi Kategori
+            Category? category = null;
+
+            if (productDto.CategoryId > 0)
+            {
+                category = await _context.Categories.FindAsync(productDto.CategoryId);
+            }
+
+            if (category == null && !string.IsNullOrEmpty(productDto.CategoryName))
+            {
+                category = await _context.Categories
+                    .FirstOrDefaultAsync(c => c.Name.ToLower() == productDto.CategoryName.ToLower());
+            }
+
+            if (category == null)
+            {
+                response.Success = false;
+                response.Message = "Category not found. Please provide a valid CategoryId or CategoryName.";
+                return response;
+            }
+
+            // 2. Update fields
+            product.Name = productDto.Name;
+            product.Description = productDto.Description;
+            product.Price = productDto.Price;
+            product.Stock = productDto.Stock;
+            product.CategoryId = category.Id;
+
+            // 3. Proses Upload Gambar (jika ada file baru)
+            if (productDto.ImageFile != null)
+            {
+                var webRootPath = _environment.WebRootPath
+                    ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+
+                string uploadsFolder = Path.Combine(webRootPath, "images");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                // Hapus gambar lama jika bukan placeholder
+                if (!string.IsNullOrEmpty(product.ImageUrl) && !product.ImageUrl.StartsWith("http"))
+                {
+                    var oldFilePath = Path.Combine(webRootPath, product.ImageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                    if (File.Exists(oldFilePath))
+                        File.Delete(oldFilePath);
+                }
+
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(productDto.ImageFile.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await productDto.ImageFile.CopyToAsync(fileStream);
+                }
+
+                product.ImageUrl = "/images/" + uniqueFileName;
+            }
+
+            await _context.SaveChangesAsync();
+
+            response.Data = _mapper.Map<ProductDto>(product);
+            response.Data.CategoryName = category.Name;
+            response.Message = "Product updated successfully.";
             return response;
         }
 

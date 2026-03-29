@@ -11,6 +11,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var jwtToken = builder.Configuration.GetSection("AppSettings:Token").Value;
+if (string.IsNullOrWhiteSpace(jwtToken))
+{
+    throw new InvalidOperationException("Missing AppSettings:Token configuration for JWT authentication.");
+}
+
 builder.Services.AddCors(options =>
 {
     // Konfigurasi CORS agar Frontend (Next.js) bisa mengakses Backend
@@ -49,7 +55,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value!)),
+                .GetBytes(jwtToken)),
             ValidateIssuer = false,
             ValidateAudience = false
         };
@@ -86,6 +92,11 @@ builder.Services.AddSwaggerGen(c =>
 
 
 var app = builder.Build();
+
+// Pastikan folder wwwroot dan wwwroot/images ada
+var wwwrootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "images");
+if (!Directory.Exists(wwwrootPath))
+    Directory.CreateDirectory(wwwrootPath);
 
 // Seed Data
 using (var scope = app.Services.CreateScope())

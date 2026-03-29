@@ -47,5 +47,17 @@ namespace Backend.Controllers
             }
             return Ok(result);
         }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<ActionResult<ServiceResponse<List<CartItemDto>>>> UpdateQuantity(int id, UpdateCartQuantityDto request)
+        {
+            var result = await _cartService.UpdateCartQuantity(id, request.Quantity);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
     }
 }

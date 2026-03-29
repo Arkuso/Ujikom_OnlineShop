@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using System.Security.Claims;
 using Backend.Data;
 using Backend.DTOs;
@@ -44,6 +44,13 @@ namespace Backend.Services
             var response = new ServiceResponse<List<CartItemDto>>();
             var userId = GetUserId();
 
+            if (request.Quantity <= 0)
+            {
+                response.Success = false;
+                response.Message = "Quantity must be at least 1.";
+                return response;
+            }
+
             var product = await _context.Products.FindAsync(request.ProductId);
             if (product == null)
             {
@@ -55,6 +62,14 @@ namespace Backend.Services
             var cartItem = await _context.Carts
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == request.ProductId);
 
+            int currentInCart = cartItem?.Quantity ?? 0;
+            if (currentInCart + request.Quantity > product.Stock)
+            {
+                response.Success = false;
+                response.Message = $"Cannot add to cart. Only {product.Stock} items available in stock.";
+                return response;
+            }
+
             if (cartItem != null)
             {
                 cartItem.Quantity += request.Quantity;
@@ -64,6 +79,35 @@ namespace Backend.Services
                 cartItem = _mapper.Map<Cart>(request); 
                 cartItem.UserId = userId; 
                 _context.Carts.Add(cartItem);
+            }
+
+            await _context.SaveChangesAsync();
+            return await GetMyCart();
+        }
+
+        public async Task<ServiceResponse<List<CartItemDto>>> UpdateCartQuantity(int cartId, int quantity)
+        {
+            var response = new ServiceResponse<List<CartItemDto>>();
+            var userId = GetUserId();
+
+            var cartItem = await _context.Carts
+                .Include(c => c.Product)
+                .FirstOrDefaultAsync(c => c.Id == cartId && c.UserId == userId);
+
+            if (cartItem == null)
+            {
+                response.Success = false;
+                response.Message = "Item not found.";
+                return response;
+            }
+
+            if (quantity <= 0)
+            {
+                _context.Carts.Remove(cartItem);
+            }
+            else
+            {
+                cartItem.Quantity = quantity;
             }
 
             await _context.SaveChangesAsync();

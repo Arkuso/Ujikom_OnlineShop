@@ -44,77 +44,78 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="min-h-[40vh] flex items-center justify-center">
-        <p className="text-sm text-gray-400">Loading dashboard...</p>
+        <div className="w-8 h-8 border-4 border-[#7A3E2D]/20 border-t-[#7A3E2D] rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-6 shadow-sm border border-gray-200">
-          <p className="text-xs font-semibold text-gray-600 tracking-wide mb-2">
-            Total Products
+    <div className="space-y-12">
+      {/* Overview Analytics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-[#F7F7F7] p-8 rounded-2xl border border-black/5">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+            Active Catalog
           </p>
-          <p className="text-3xl font-bold text-black">{totalProducts}</p>
+          <p className="text-4xl font-bold text-[#171717]">{totalProducts}</p>
+          <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-widest">Total Articles</p>
         </div>
-        <div className="bg-white p-6 shadow-sm border border-gray-200">
-          <p className="text-xs font-semibold text-gray-600 tracking-wide mb-2">
-            Low Stock
+        <div className="bg-[#F7F7F7] p-8 rounded-2xl border border-black/5">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+            Critical Stock
           </p>
-          <p className="text-3xl font-bold text-yellow-600">
+          <p className="text-4xl font-bold text-[#7A3E2D]">
             {lowStockItems.length}
           </p>
-          <p className="text-xs text-gray-400 mt-1">Less than 10 items</p>
+          <p className="text-[10px] text-gray-300 mt-2 font-bold uppercase tracking-widest">Under 10 Threshold</p>
         </div>
-        <div className="bg-white p-6 shadow-sm border border-gray-200">
-          <p className="text-xs font-semibold text-gray-600 tracking-wide mb-2">
-            Out of Stock
+        <div className="bg-[#F7F7F7] p-8 rounded-2xl border border-black/5">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+            Depleted
           </p>
-          <p className="text-3xl font-bold text-red-600">
+          <p className="text-4xl font-bold text-rose-500">
             {outOfStockItems.length}
           </p>
-          <p className="text-xs text-gray-400 mt-1">Needs restocking</p>
+          <p className="text-[10px] text-gray-300 mt-2 font-bold uppercase tracking-widest">Restock Required</p>
         </div>
       </div>
 
-      {/* Low Stock Alerts */}
+      {/* Critical Alerts */}
       {lowStockItems.length > 0 && (
-        <div className="bg-white shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <p className="text-xs font-semibold text-gray-600 tracking-wide uppercase">
-              Low Stock Alerts
-            </p>
+        <div className="bg-white rounded-2xl border border-black/5 overflow-hidden">
+          <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between bg-[#F7F7F7]/50">
+            <h3 className="text-[10px] font-bold text-[#171717] uppercase tracking-widest">
+              Stock Warnings
+            </h3>
             <Link
               href="/admin/products"
-              className="text-xs font-semibold text-black hover:underline"
+              className="text-[10px] font-bold text-[#7A3E2D] hover:underline uppercase tracking-widest"
             >
-              View All Products →
+              Full Analytics →
             </Link>
           </div>
           <div className="divide-y divide-gray-100">
             {lowStockItems.slice(0, 5).map((product) => (
               <div
                 key={product.id}
-                className="px-6 py-4 flex items-center justify-between"
+                className="px-8 py-5 flex items-center justify-between group hover:bg-[#F7F7F7] transition-colors"
               >
                 <div>
-                  <p className="text-sm font-medium text-black">
+                  <p className="text-sm font-bold text-[#171717]">
                     {product.name}
                   </p>
-                  <p className="text-xs text-gray-400">{product.categoryName}</p>
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1.5">{product.categoryName}</p>
                 </div>
                 <span
-                  className={`px-3 py-1 text-xs font-semibold ${
+                  className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${
                     product.stock === 0
-                      ? "bg-red-50 text-red-700 border border-red-200"
-                      : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                      ? "bg-rose-50 text-rose-600 border border-rose-100"
+                      : "bg-amber-50 text-amber-600 border border-amber-100"
                   }`}
                 >
                   {product.stock === 0
-                    ? "Out of stock"
-                    : `${product.stock} left`}
+                    ? "Depleted"
+                    : `${product.stock} units`}
                 </span>
               </div>
             ))}
@@ -122,45 +123,45 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Recent Products */}
-      <div className="bg-white shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <p className="text-xs font-semibold text-gray-600 tracking-wide uppercase">
-            Recent Products
-          </p>
+      {/* Recent Activity */}
+      <div className="bg-white rounded-2xl border border-black/5 overflow-hidden">
+        <div className="px-8 py-5 border-b border-gray-100 bg-[#F7F7F7]/50">
+          <h3 className="text-[10px] font-bold text-[#171717] uppercase tracking-widest">
+            Module Stream
+          </h3>
         </div>
         <div className="divide-y divide-gray-100">
           {products.length > 0 ? (
             products.slice(0, 5).map((product) => (
               <div
                 key={product.id}
-                className="px-6 py-4 flex items-center justify-between"
+                className="px-8 py-5 flex items-center justify-between group hover:bg-[#F7F7F7] transition-colors"
               >
                 <div>
-                  <p className="text-sm font-medium text-black">
+                  <p className="text-sm font-bold text-[#171717]">
                     {product.name}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1.5">
                     {product.categoryName} · Rp{" "}
                     {product.price.toLocaleString("id-ID")}
                   </p>
                 </div>
                 <Link
                   href={`/admin/products/${product.id}`}
-                  className="text-xs font-semibold text-black hover:underline"
+                  className="text-[10px] font-bold text-[#7A3E2D] hover:underline uppercase tracking-widest"
                 >
-                  Edit
+                  Edit Unit
                 </Link>
               </div>
             ))
           ) : (
-            <div className="px-6 py-8 text-center">
-              <p className="text-sm text-gray-400">No products yet</p>
+            <div className="px-8 py-16 text-center">
+              <p className="text-sm text-gray-400 font-bold mb-4">Catalog stream is inactive.</p>
               <Link
                 href="/admin/products/add"
-                className="text-sm text-black font-semibold hover:underline mt-2 inline-block"
+                className="inline-block bg-[#1A1A1A] text-white px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black transition-all"
               >
-                Add your first product →
+                Initialize New Asset
               </Link>
             </div>
           )}

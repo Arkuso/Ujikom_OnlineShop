@@ -10,6 +10,8 @@ interface JwtPayload {
 }
 
 const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+const NAME_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
+const ID_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
 
 function decodeBase64Url(value: string): string {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -58,13 +60,16 @@ export function buildUserFromToken(token: string): User | null {
 
   const role = (payload.role || payload[ROLE_CLAIM] || "Customer") as string;
   const email = (payload.email || payload.unique_name || "") as string;
-  const name = (payload.name || (typeof email === "string" ? email.split("@")[0] : "User")) as string;
+  const name = (payload.name || payload[NAME_CLAIM] || (typeof email === "string" ? email.split("@")[0] : "User")) as string;
+  const idStr = (payload.nameid || payload[ID_CLAIM] || "0") as string;
+  const profileImageUrl = payload.profileImageUrl as string | undefined;
 
   return {
-    id: 0,
+    id: parseInt(idStr),
     name,
     email,
     role,
+    profileImageUrl
   };
 }
 

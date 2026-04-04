@@ -25,6 +25,22 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "HKGroteskWide";
+  src: url("/Font/HKGroteskWide_2020D/HKGroteskWide_2020D/OTF/HKGroteskWide-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Newake";
+  src: url("/Font/indieground-newakefont-demo/Newake-Font-Demo.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Kursiku-Inspired Coffee & Sand Modern Theme */
 @layer base {
   :root {
@@ -73,6 +89,14 @@
 
   .font-ahsuperduper {
     font-family: "AHSuperDuper", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .font-hk-grotesk-wide {
+    font-family: "HKGroteskWide", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .font-newake {
+    font-family: "Newake", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   .kursiku-card {

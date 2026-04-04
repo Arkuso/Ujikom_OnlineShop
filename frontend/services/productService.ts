@@ -8,6 +8,16 @@ const productService = {
     return response.data;
   },
 
+  async getSale(): Promise<ServiceResponse<Product[]>> {
+    const response = await api.get<ServiceResponse<Product[]>>('/Product/sale');
+    return response.data;
+  },
+
+  async getFeatured(): Promise<ServiceResponse<Product[]>> {
+    const response = await api.get<ServiceResponse<Product[]>>('/Product/featured');
+    return response.data;
+  },
+
   async getById(id: number): Promise<ServiceResponse<Product>> {
     const response = await api.get<ServiceResponse<Product>>(`/Product/${id}`);
     return response.data;

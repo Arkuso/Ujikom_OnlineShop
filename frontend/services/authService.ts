@@ -13,8 +13,16 @@ const authService = {
     return response.data;
   },
 
-  // Mendapatkan profil user (biasanya token di-decode di frontend atau ada endpoint profile)
-  // Untuk project ini kita simpan data di localStorage.
+  async uploadProfileImage(imageFile: File): Promise<ServiceResponse<string>> {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    const response = await api.post<ServiceResponse<string>>('/Auth/upload-profile-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
 
 export default authService;

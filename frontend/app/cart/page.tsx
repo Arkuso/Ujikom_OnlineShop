@@ -96,22 +96,22 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center bg-[#E6D3B1]">
-        <div className="w-10 h-10 border-4 border-white/20 border-t-[#7A3E2D] rounded-full animate-spin"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#D9D9D9]">
+        <div className="w-10 h-10 border-4 border-black/20 border-t-black rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 text-center bg-[#E6D3B1]">
-        <h2 className="text-4xl font-bold text-[#171717] mb-6 tracking-tight">Your collection is empty</h2>
-        <p className="text-[#171717]/60 text-lg mb-12 max-w-sm mx-auto leading-relaxed">
-          Looks like you haven&apos;t added any pieces to your workspace or living module yet.
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center bg-[#D9D9D9]">
+        <h2 className="text-4xl font-['HKGroteskWide'] font-semibold text-[#171717] mb-6">Cart</h2>
+        <p className="text-[#171717]/60 text-lg mb-12 max-w-sm mx-auto font-['Vercetti-Regular']">
+          Your collection is empty.
         </p>
         <Link
           href="/products"
-          className="bg-[#1A1A1A] text-white py-5 px-16 text-sm font-bold rounded-xl hover:bg-black transition-all active:scale-95 shadow-xl"
+          className="bg-[#1A1A1A] text-white py-5 px-16 text-sm font-['Vercetti-Regular'] rounded-xl hover:bg-black transition-all active:scale-95"
         >
           Explore Catalog
         </Link>
@@ -120,88 +120,66 @@ export default function CartPage() {
   }
 
   return (
-    <div className="bg-[#E6D3B1] min-h-screen pt-32 pb-24">
-      <div className="max-w-360 mx-auto px-6 lg:px-12">
+    <div className="bg-[#D9D9D9] min-h-screen pt-32 pb-24">
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-12">
         {/* Header */}
-        <div className="mb-16 px-4">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
-            <div>
-              <h1 className="text-5xl md:text-6xl font-black text-[#171717] uppercase tracking-tighter leading-none mb-6">
-                Your <span className="text-[#7A3E2D]">Bag</span>
-              </h1>
-              <p className="text-[#171717]/40 text-xs font-bold uppercase tracking-widest">
-                Optimizing Content: {cartItems.length} {cartItems.length === 1 ? "Item" : "Items"}
-              </p>
-            </div>
-            
-            <Link
-              href="/products"
-              className="text-sm font-bold text-[#171717] hover:text-[#7A3E2D] transition-colors flex items-center gap-2 group"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 group-hover:-translate-x-1 transition-transform">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-              </svg>
-              Continue Selected Search
-            </Link>
-          </div>
+        <div className="text-center mb-16">
+          <h1 className="text-6xl font-['HKGroteskWide'] font-semibold text-[#171717]">
+            Cart
+          </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Cart List */}
-          <div className="lg:col-span-8 space-y-6">
-            {message && (
-               <div className={`p-6 rounded-3xl border text-xs font-bold uppercase tracking-widest text-center mb-8 animate-in fade-in duration-500 ${success ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+          <div className="lg:col-span-8">
+            {/* Table Headers */}
+            <div className="flex justify-between items-center pb-4 border-b border-gray-400 font-['Vercetti-Regular'] text-xl mb-4">
+              <span className="flex-1">Product</span>
+              <span className="w-[120px] text-center">Quantity</span>
+              <span className="min-w-[150px] text-right">Total</span>
+            </div>
+
+            <div className="space-y-0">
+              {message && (
+                <div className={`p-4 text-center text-sm font-['Vercetti-Regular'] mb-4 ${success ? 'text-emerald-600' : 'text-rose-600'}`}>
                   {message}
-               </div>
-            )}
-            {cartItems.map((item) => (
-              <CartItem 
-                key={item.id}
-                item={item}
-                onRemove={handleRemove}
-                onUpdateQuantity={handleChangeQuantity}
-                isRemoving={removingId === item.id}
-                isUpdating={updatingId === item.id}
-              />
-            ))}
+                </div>
+              )}
+              {cartItems.map((item) => (
+                <CartItem 
+                  key={item.id}
+                  item={item}
+                  onRemove={handleRemove}
+                  onUpdateQuantity={handleChangeQuantity}
+                  isRemoving={removingId === item.id}
+                  isUpdating={updatingId === item.id}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* Checkout Logic */}
+          {/* Checkout Area */}
           <div className="lg:col-span-4">
-            <div className="bg-white p-10 md:p-12 rounded-[3rem] shadow-xl border border-black/5 sticky top-32">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-[#171717]/40 mb-10 pb-6 border-b border-gray-100">
-                Summary Yield
-              </h2>
-
-              <div className="space-y-8 mb-12">
-                <div className="flex justify-between items-center text-sm font-bold text-[#171717]/60 uppercase">
-                  <span>Sub-Assessment</span>
-                  <span className="text-[#171717]">Rp {grandTotal.toLocaleString("id-ID")}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm font-bold text-[#171717]/60 uppercase">
-                  <span>Global Logistics</span>
-                  <span className="text-[#7A3E2D] italic">Standard Delivery</span>
-                </div>
+            <div className="bg-[#F8F9FA] p-10 rounded-lg sticky top-32 border border-gray-200">
+              <div className="flex justify-between items-baseline mb-12">
+                <span className="text-2xl font-['Vercetti-Regular'] text-[#171717]">Subtotal</span>
+                <span className="text-2xl font-['Vercetti-Regular'] text-[#171717]">Rp {grandTotal.toLocaleString("id-ID")}</span>
               </div>
 
-              <div className="pt-10 mb-12 flex justify-between items-end border-t border-gray-100">
-                 <div>
-                   <span className="block text-xs font-bold uppercase tracking-widest text-[#171717]/40 mb-2">Total Amount</span>
-                   <span className="text-4xl font-bold text-[#171717] tracking-tight">Rp {grandTotal.toLocaleString("id-ID")}</span>
-                 </div>
+              <div className="mb-12">
+                <span className="block text-lg font-['Vercetti-Regular'] text-[#171717]/50 mb-2">Total Amount</span>
+                <span className="text-5xl font-['Vercetti-Regular'] text-[#171717]">Rp {grandTotal.toLocaleString("id-ID")}</span>
+                <p className="text-xs font-['Vercetti-Regular'] text-[#171717]/50 mt-4 leading-relaxed">
+                  Tax included. Shipping calculated at checkout.
+                </p>
               </div>
 
               <button
                 onClick={() => router.push("/checkout")}
-                className="block w-full text-white py-6 text-sm font-bold uppercase tracking-widest bg-black/90 hover:bg-black transition-all active:scale-95 rounded-xl text-center shadow-xl shadow-black/10"
+                className="block w-full text-white py-5 text-xl font-['Vercetti-Regular'] bg-[#5E6266] hover:bg-[#4E5256] transition-all active:scale-95 text-center"
               >
-                Start Checkout →
+                CHECKOUT
               </button>
-              
-              <div className="mt-12 text-[10px] text-gray-400 text-center font-bold tracking-widest uppercase leading-loose">
-                <p>Digital Rights Guaranteed &middot; Gravity Protocol</p>
-                <Link href="#" className="hover:text-[#7A3E2D] underline">Legal Disclosure</Link>
-              </div>
             </div>
           </div>
         </div>

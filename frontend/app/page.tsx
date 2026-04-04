@@ -36,18 +36,17 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-14 md:gap-16 pb-20 pt-24 bg-[#6B4F3A]">
+    <div className="flex flex-col gap-14 md:gap-16 pb-20 bg-[#f4f4f0] min-h-screen">
       {/* Hero Section */}
-      <section className="px-6 lg:px-12 max-w-360 mx-auto w-full">
-        <div className="relative min-h-[520px] lg:min-h-[560px] rounded-[3rem] overflow-hidden group flex items-center">
-          {/* Layout Container */}
-          <div className="relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-10 px-12 md:px-20 lg:px-24">
-            {/* Text Side */}
+      <section className="mt-20 relative min-h-[520px] lg:min-h-[560px] bg-[#6B4F3A] overflow-hidden group flex items-center">
+        {/* Layout Container */}
+        <div className="relative z-10 w-full max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-10 px-6 lg:px-12">
+          {/* Text Side */}
             <div className="max-w-2xl py-10 lg:py-12">
                <h1 className="font-obrazec2 text-6xl md:text-8xl font-black text-[#C9A15B] tracking-[0.02em] [word-spacing:0.12em] leading-[0.98] mb-10">
                  Discover your <br />
-                 next favorite <br />
-                 gadget.
+                 favorite gadget<br />
+                 here.
                </h1>
                
                <p className="font-vercetti text-white/70 text-lg md:text-xl font-medium max-w-xl mb-12 leading-relaxed">
@@ -56,24 +55,23 @@ export default function Home() {
             </div>
 
             {/* Image Side */}
-            <div className="relative h-full flex items-center justify-center lg:justify-end">
-               <div className="relative w-full aspect-square max-w-150">
+            <div className="relative h-full py-10 lg:py-16 flex items-center justify-center lg:justify-end">
+               <div className="relative w-full aspect-[4/3] max-w-[600px] overflow-hidden rounded-[2rem]">
                   <img 
                     src="/Woman.jpg" 
                     alt="System Preview"
-                    className="w-full h-full object-contain rounded-4xl"
+                    className="w-full h-full object-cover"
                   />
                </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Categories Grid - KURSIKU Inspired */}
       <section className="px-6 lg:px-12 max-w-360 mx-auto w-full -mt-6 md:-mt-8">
          <div className="text-center mb-16">
             <h2 className="font-obrazec2 text-4xl md:text-5xl font-black text-[#C9A15B] mb-6 tracking-[0.02em] [word-spacing:0.12em]">Exclusive Categories</h2>
-            <p className="font-vercetti text-white/70 max-w-2xl mx-auto font-medium">
+            <p className="font-vercetti text-[#0E0E12] max-w-2xl mx-auto font-medium">
               Check out this week&apos;s selection of popular modules that might catch your eye, and don&apos;t miss our global inventory updates.
             </p>
          </div>

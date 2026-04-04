@@ -2,170 +2,229 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
+import orderService from "@/services/orderService";
+import authService from "@/services/authService";
+import { Order } from "@/types/order";
+import { useAuthStore } from "@/lib/useAuthstore";
+import { buildUserFromToken } from "@/lib/authSession";
 
 type UserRole = "Admin" | "Customer" | null;
 
 export default function ProfilePage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user: storeUser, login, logout, syncFromStorage } = useAuthStore();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [auth, setAuth] = useState<{
-    isLoggedIn: boolean;
-    role: UserRole;
-    email: string;
-    name: string;
-  }>({
-    isLoggedIn: false,
-    role: null,
-    email: "",
-    name: "",
-  });
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem("token");
-      if (token && token.includes('.')) {
-        try {
-          const parts = token.split(".");
-          if (parts.length === 3) {
-            const payload = JSON.parse(atob(parts[1]));
-            const userRole =
-              payload.role ||
-              payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-
-            setAuth({
-              isLoggedIn: true,
-              role: (userRole === "Admin" ? "Admin" : "Customer") as UserRole,
-              email: payload.email || payload.unique_name || "",
-              name: payload.name || payload.unique_name?.split("@")[0] || "User",
-            });
-          }
-        } catch (error) {
-          console.error("Token parsing failed", error);
-        }
-      }
-      setIsLoaded(true);
-    };
-
-    checkAuth();
+    syncFromStorage();
+    setIsLoaded(true);
     
-    // Add event listener to handle storage changes (e.g. login in another tab)
-    window.addEventListener('storage', checkAuth);
-    return () => window.removeEventListener('storage', checkAuth);
+    const handleStorage = () => syncFromStorage();
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
-  const membershipId = useMemo(() => {
-    if (!auth.name) return "GRV-GUEST-000";
-    const seed = auth.name.length + auth.email.length;
-    const randomPart = Math.floor(((seed * 1234.567) % 1) * 900) + 100;
-    return `GRV-${auth.role?.toUpperCase() || "USER"}-00${randomPart}`;
-  }, [auth.role, auth.name, auth.email]);
+  useEffect(() => {
+    if (storeUser) {
+      const fetchOrders = async () => {
+        try {
+          const res = await orderService.getMyOrders();
+          if (res.success && res.data) {
+             const validOrders = res.data.filter(order => 
+               order.items.length > 0 && 
+               !order.items.some(item => item.productName === "Product Unavailable" || item.productName === "Empty Data Product")
+             );
+             setOrders(validOrders);
+          }
+        } catch (error) {
+          console.error("Failed to fetch orders", error);
+        }
+      };
+      fetchOrders();
+    }
+  }, [storeUser]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.dispatchEvent(new Event('storage')); // Notify other components
-    router.replace("/login");
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const res = await authService.uploadProfileImage(file);
+      if (res.success && res.data) {
+        // Update user data by rebuilding from potential new token, 
+        // but here we just need to update the profileImageUrl.
+        // For simplicity, let's just re-fetch or manually update the store.
+        const token = localStorage.getItem("token");
+        if (token) {
+          // In a real app the backend might return a new token with updated claims,
+          // but here we can just update the current state if needed.
+          // For now, let's assume the user needs to re-login or we manually update store.
+          // Since our buildUserFromToken decodes the token, we'd ideally want a new token.
+          // However, we can patch the store user directly for immediate UI update.
+          if (storeUser) {
+             login({ ...storeUser, profileImageUrl: res.data }, token);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to upload image", error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const nameToShow = storeUser?.name || "User";
+  const roleToShow = storeUser?.role === "Admin" ? "Admin/Customer" : storeUser?.role || "Customer";
+  const emailToShow = storeUser?.email || "-";
+  const profileImage = storeUser?.profileImageUrl 
+    ? (storeUser.profileImageUrl.startsWith('http') ? storeUser.profileImageUrl : `http://localhost:5055${storeUser.profileImageUrl}`)
+    : null;
+
   if (!isLoaded) {
-    return <div className="min-h-screen bg-[#E6D3B1] flex items-center justify-center">
-      <div className="w-10 h-10 border-4 border-[#7A3E2D]/20 border-t-[#7A3E2D] rounded-full animate-spin"></div>
+    return <div className="min-h-screen bg-[#D9D9D9] flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-black/20 border-t-black rounded-full animate-spin"></div>
     </div>;
   }
 
-  if (!auth.isLoggedIn) {
+  if (!storeUser) {
      return (
-        <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 text-center bg-[#E6D3B1]">
-           <h2 className="text-4xl font-bold text-[#171717] mb-6 tracking-tight">No Account detect!</h2>
-           <p className="text-[#171717]/60 text-lg mb-12 max-w-sm mx-auto leading-relaxed">
-             Please identify yourself with log in or sign up if you dont have account yet.
+        <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-[#D9D9D9]">
+           <h2 className="text-4xl font-['HKGroteskWide'] font-semibold text-[#171717] mb-6 tracking-tight">Account not detected</h2>
+           <p className="text-[#171717]/60 text-lg mb-12 max-w-sm mx-auto font-['Vercetti-Regular'] leading-relaxed">
+             Please log in to manage your profile and view order history.
            </p>
            <div className="flex flex-wrap gap-6 justify-center">
-              <Link href="/login" className="bg-[#1A1A1A] text-white py-5 px-16 text-sm font-bold rounded-xl hover:bg-black transition-all shadow-xl">Sign In</Link>
-              <Link href="/register" className="bg-white text-[#171717] py-5 px-16 text-sm font-bold rounded-xl border border-black/5 hover:bg-gray-50 transition-all">Sign up</Link>
+              <Link href="/login" className="bg-[#1A1A1A] text-white py-5 px-16 text-sm font-['Vercetti-Regular'] rounded-xl hover:bg-black transition-all">Sign In</Link>
+              <Link href="/register" className="bg-white text-[#171717] py-5 px-16 text-sm font-['Vercetti-Regular'] rounded-xl border border-black/5 hover:bg-gray-50 transition-all">Sign up</Link>
            </div>
         </div>
      );
   }
 
   return (
-    <div className="bg-[#E6D3B1] min-h-screen pt-32 pb-24">
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
-          {/* Identity Sector */}
-          <div className="lg:col-span-4">
-            <div className="bg-white p-12 rounded-3xl shadow-xl border border-black/5 sticky top-32 text-center md:text-left">
-               <div className="w-24 h-24 bg-[#7A3E2D] rounded-2xl flex items-center justify-center text-4xl font-bold text-white mb-10 mx-auto md:mx-0 shadow-2xl shadow-[#7A3E2D]/20">
-                 {auth.name.slice(0, 1).toUpperCase()}
-               </div>
-               <h1 className="text-4xl font-bold text-[#171717] leading-none mb-6">{auth.name}</h1>
-               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#7A3E2D]/5 rounded-full mb-12 border border-[#7A3E2D]/10">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#7A3E2D] animate-pulse"></span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#7A3E2D]">{auth.role} Access</span>
-               </div>
-               
-               <div className="space-y-8 pt-10 border-t border-gray-100 text-left">
-                  <div>
-                     <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Registered Email</span>
-                     <span className="text-sm font-bold text-[#171717]">{auth.email}</span>
-                  </div>
-                  <div>
-                     <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Membership ID</span>
-                     <span className="text-sm font-bold text-[#171717]">{membershipId}</span>
-                  </div>
-               </div>
+    <div className="min-h-screen pt-32 pb-24 bg-[#D9D9D9] px-4 md:px-8">
+      <div className="max-w-4xl mx-auto space-y-8 block">
+        {/* Account Detail Block */}
+        <div className="bg-[#E0E0E0] rounded-[2rem] p-8 md:p-10 relative">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-2.5 h-8 bg-[#2563EB] rounded-full"></div>
+            <h2 className="text-2xl font-medium text-black">Account Detail</h2>
+          </div>
 
-               <button 
-                 onClick={handleLogout}
-                 className="w-full mt-16 py-6 bg-[#1A1A1A] text-white hover:bg-black text-[10px] font-bold uppercase tracking-widest transition-all rounded-2xl shadow-xl shadow-black/10"
-               >
-                 Terminate Session
-               </button>
+          <div className="flex items-start gap-8 mb-16 pl-2">
+            {/* Avatar with Upload Capability */}
+            <div 
+              className="relative w-[140px] h-[140px] bg-[#111111] rounded-full flex-shrink-0 flex items-center justify-center text-white text-5xl font-bold cursor-pointer group hover:opacity-90 transition-opacity overflow-hidden"
+              onClick={handleImageClick}
+            >
+              {profileImage ? (
+                <img src={profileImage} alt={nameToShow} className="w-full h-full object-cover" />
+              ) : (
+                <span>{nameToShow.slice(0, 1).toUpperCase()}</span>
+              ) }
+              
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <img src="/noun-add-picture.svg" alt="Add" className="w-8 h-8 invert" />
+                {uploading && <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                </div>}
+              </div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                className="hidden" 
+                accept="image/*"
+              />
+            </div>
+            
+            <div className="flex flex-col pt-1">
+               <h3 className="text-[32px] font-['HKGroteskWide'] font-semibold text-black mb-6">{nameToShow}</h3>
+               <div className="flex flex-wrap gap-8 sm:gap-20">
+                 <div className="flex flex-col">
+                   <p className="text-[14px] text-black/60 mb-1 font-['Vercetti-Regular']">Role</p>
+                   <p className="text-[22px] text-black font-medium">{roleToShow}</p>
+                 </div>
+                 <div className="flex flex-col">
+                   <p className="text-[14px] text-black/60 mb-1 font-['Vercetti-Regular']">Email Address</p>
+                   <p className="text-[22px] text-black font-medium">{emailToShow}</p>
+                 </div>
+               </div>
             </div>
           </div>
 
-          {/* Control Sector */}
-          <div className="lg:col-span-8">
-             <div className="mb-16 px-4">
-                <h2 className="text-5xl md:text-6xl font-black text-[#171717] uppercase tracking-tighter leading-none mb-6">User <span className="text-[#7A3E2D]">Dashboard</span></h2>
-                <p className="text-[#171717]/40 text-xs font-bold uppercase tracking-widest">Manage your active collection streams</p>
-             </div>
-
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Link href="/orders" className="group bg-white p-12 rounded-[3rem] shadow-sm hover:shadow-xl transition-all border border-black/5">
-                   <div className="w-16 h-16 bg-[#F7F7F7] flex items-center justify-center mb-8 rounded-2xl group-hover:bg-[#7A3E2D] group-hover:text-white group-hover:-translate-y-2 transition-all duration-500 font-bold text-2xl">OR</div>
-                   <h3 className="text-2xl font-bold text-[#171717] mb-4">Past Orders</h3>
-                   <p className="text-sm text-[#171717]/40 leading-relaxed font-bold uppercase tracking-widest text-xs">Review your transaction history.</p>
-                </Link>
-                
-                <Link href="/cart" className="group bg-white p-12 rounded-[3rem] shadow-sm hover:shadow-xl transition-all border border-black/5">
-                   <div className="w-16 h-16 bg-[#F7F7F7] flex items-center justify-center mb-8 rounded-2xl group-hover:bg-[#7A3E2D] group-hover:text-white group-hover:-translate-y-2 transition-all duration-500 font-bold text-2xl">BG</div>
-                   <h3 className="text-2xl font-bold text-[#171717] mb-4">Bag Details</h3>
-                   <p className="text-sm text-[#171717]/40 leading-relaxed font-bold uppercase tracking-widest text-xs">Verify your current selection.</p>
-                </Link>
-
-                {auth.role === "Admin" && (
-                  <Link href="/admin" className="md:col-span-2 group bg-[#1A1A1A] p-12 md:p-16 rounded-[4rem] hover:bg-black transition-all text-white shadow-2xl shadow-black/10 relative overflow-hidden">
-                     <div className="absolute right-[-2%] top-[-2%] text-[12rem] font-bold opacity-5 pointer-events-none select-none tracking-tighter">ADMIN</div>
-                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-10">
-                        <div>
-                          <h3 className="text-4xl md:text-5xl font-bold uppercase tracking-tighter mb-4 leading-none">System <br /> Control</h3>
-                          <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Elevated access: Manage catalog and users</p>
-                        </div>
-                        <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/10 font-bold text-xs uppercase tracking-widest">
-                           Access Admin Panel →
-                        </div>
-                     </div>
-                  </Link>
-                )}
-
-                <div className="md:col-span-2 bg-white/30 border-2 border-dashed border-[#171717]/5 p-20 text-center rounded-[3rem]">
-                   <p className="text-[10px] font-bold text-[#171717]/20 uppercase tracking-[0.5em] mb-4">Gravity Protocol v3.x</p>
-                   <p className="text-[#171717]/30 text-sm font-bold uppercase tracking-widest">Integrated loyalty & modules in simulation.</p>
-                </div>
-             </div>
+          <div className="flex justify-between items-center mt-6">
+            <div className="flex gap-5">
+              {storeUser.role === "Admin" && (
+                <Link href="/admin" className="bg-white text-black py-4 px-10 rounded-xl font-medium hover:bg-gray-100 transition-colors">Admin Dashboard</Link>
+              )}
+            </div>
+            <button 
+              onClick={() => logout()}
+              className="px-6 py-2 text-red-600 font-medium hover:bg-red-50 rounded-lg transition-colors"
+            >
+              Sign Out
+            </button>
           </div>
         </div>
+
+        {/* Order History Section */}
+        {orders.length > 0 && (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-['HKGroteskWide'] font-semibold text-black px-2">Order History</h2>
+            <div className="grid grid-cols-1 gap-6">
+              {orders.map((order) => (
+                <div key={order.id} className="bg-[#111111] rounded-[2rem] p-8 text-white relative flex flex-col md:flex-row justify-between gap-6">
+                  <div className="space-y-6 flex-1">
+                    <div className="flex items-center justify-between">
+                       <span className="text-[12px] text-white/40 uppercase tracking-widest font-bold">Order #{order.id}</span>
+                       <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                         order.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
+                         order.status === 'Processing' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
+                         'bg-white/10 text-white/60 border border-white/5'
+                       }`}>
+                         {order.status}
+                       </span>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-6">
+                           <div className="w-16 h-16 bg-white/5 rounded-xl overflow-hidden flex-shrink-0 border border-white/5">
+                             <img 
+                               src={item.imageUrl?.startsWith('http') ? item.imageUrl : `http://localhost:5055${item.imageUrl}`} 
+                               alt={item.productName} 
+                               className="w-full h-full object-contain"
+                             />
+                           </div>
+                           <div>
+                              <p className="text-[18px] font-medium text-white">{item.productName}</p>
+                              <p className="text-[14px] text-white/40">{item.quantity} Unit &middot; Rp {item.price.toLocaleString('id-ID')}</p>
+                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="md:border-l md:border-white/5 md:pl-10 flex flex-col justify-end items-end gap-2">
+                    <p className="text-white/40 text-[12px] uppercase tracking-widest font-bold">Total Assessment</p>
+                    <p className="text-3xl font-bold text-white tracking-tight">Rp {order.totalAmount.toLocaleString('id-ID')}</p>
+                    <p className="text-[11px] text-white/30">{new Date(order.orderDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

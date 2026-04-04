@@ -36,73 +36,68 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#E6D3B1] px-6 py-24 relative overflow-hidden">
-      {/* Abstract Elements */}
-      <div className="absolute top-[-10%] left-[-5%] w-100 h-100 bg-[#7A3E2D]/5 blur-[100px] rounded-full"></div>
-      <div className="absolute bottom-[-10%] right-[-5%] w-75 h-75 bg-[#7A3E2D]/5 blur-[80px] rounded-full"></div>
+    <div className="min-h-[calc(100vh-4rem)] bg-[#2E2F34] px-4 pt-20 pb-12 flex items-center justify-center">
+      <div className="w-full max-w-sm rounded-3xl bg-[#F4F5F8] px-5 py-7 sm:px-7 sm:py-9 shadow-2xl">
+        <div className="text-center mb-7">
+          <h1 className="font-hk-grotesk-wide text-[22px] sm:text-[26px] leading-none tracking-tight text-[#111111] uppercase">
+            Gravity
+          </h1>
+        </div>
 
-      <div className="w-full max-w-lg relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <div className="bg-white p-12 md:p-16 rounded-[4rem] shadow-2xl border border-white">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-[#171717] tracking-tight mb-4">Welcome Back</h1>
-            <p className="text-[#171717]/40 text-sm font-medium">Access your personal collection and history.</p>
+        <div className="mb-6">
+          <h2 className="font-hk-grotesk-wide text-[28px] sm:text-[32px] leading-none text-[#111111] mb-2.5">
+            Sign in
+          </h2>
+        </div>
+
+        {error && (
+          <div className="mb-6 rounded-2xl border border-rose-100 bg-rose-50 px-5 py-4 text-center font-vercetti text-xs font-medium uppercase tracking-widest text-rose-600">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div className="space-y-2">
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-11 w-full rounded-xl border border-black/25 bg-white px-4 text-[15px] font-vercetti text-[#111111] outline-none transition-colors placeholder:text-[#111111]/60 focus:border-black/60"
+              placeholder="Email"
+            />
           </div>
 
-          {error && (
-            <div className="mb-8 p-4 bg-rose-50 border border-rose-100 text-xs font-bold text-rose-600 uppercase tracking-widest rounded-2xl text-center">
-              {error}
-            </div>
-          )}
+          <div className="space-y-2">
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-11 w-full rounded-xl border border-black/25 bg-white px-4 text-[15px] font-vercetti text-[#111111] outline-none transition-colors placeholder:text-[#111111]/60 focus:border-black/60"
+              placeholder="Password"
+            />
+          </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4">Email Channel</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-16 px-8 bg-[#F7F7F7] border border-black/5 focus:border-[#7A3E2D]/30 focus:bg-white focus:ring-4 focus:ring-[#7A3E2D]/5 outline-none text-sm font-bold text-[#171717] transition-all rounded-2xl placeholder:text-gray-300" 
-                placeholder="name@example.com"
-              />
-            </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-1.5 h-11 w-full rounded-xl bg-[#6E7178] text-[15px] font-vercetti text-white transition-colors hover:bg-[#5e6168] active:scale-[0.99] disabled:opacity-70"
+          >
+            {loading ? (
+              <div className="mx-auto h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            ) : (
+              "Continue"
+            )}
+          </button>
+        </form>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4">Access Key</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-16 px-8 bg-[#F7F7F7] border border-black/5 focus:border-[#7A3E2D]/30 focus:bg-white focus:ring-4 focus:ring-[#7A3E2D]/5 outline-none text-sm font-bold text-[#171717] transition-all rounded-2xl placeholder:text-gray-300" 
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-16 bg-[#1A1A1A] text-white text-sm font-bold rounded-xl hover:bg-black transition-all active:scale-95 shadow-xl shadow-black/10 flex items-center justify-center gap-4 mt-10"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              ) : (
-                "Authenticate Access"
-              )}
-            </button>
-          </form>
-
-          <p className="mt-12 text-center text-xs font-bold text-gray-400 uppercase tracking-widest">
-            New to Gravity? <br />
-            <Link href="/register" className="text-[#7A3E2D] hover:opacity-70 transition-opacity underline block mt-4">Create Membership</Link>
-          </p>
-        </div>
-
-        <div className="mt-12 text-center">
-           <Link href="/" className="text-[10px] font-bold text-[#171717]/20 hover:text-[#7A3E2D] uppercase tracking-widest transition-colors italic">
-              ← Return Home
-           </Link>
-        </div>
+        <p className="mt-4 text-center font-vercetti text-[13px] text-[#111111]">
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="underline underline-offset-4 hover:opacity-70">
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );

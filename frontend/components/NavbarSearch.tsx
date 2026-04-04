@@ -25,7 +25,7 @@ export default function NavbarSearch({ isMinimal }: NavbarSearchProps) {
     <form onSubmit={handleSubmit} className={`relative flex items-center h-12 px-6 rounded-full border transition-all duration-500 w-full md:w-64 lg:w-80 ${
         isMinimal 
           ? "bg-gray-50 border-[#0E0E12]" 
-          : "bg-white border-[#0E0E12] shadow-sm hover:shadow-md"
+          : "bg-white border-[#] shadow-sm hover:shadow-md"
       }`}>
         <input
           type="text"

@@ -86,7 +86,7 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 text-center bg-[#E6D3B1]">
         <h2 className="text-4xl font-black text-[#171717] mb-4">ITEM NOT FOUND</h2>
-        <Link href="/products" className="text-[#7A3E2D] font-bold underline">Return to Shop</Link>
+        <Link href="/sale" className="text-[#7A3E2D] font-bold underline">Return to Sale</Link>
       </div>
     );
   }
@@ -102,7 +102,7 @@ export default function ProductDetailPage() {
       <div className="max-w-360 mx-auto px-6 lg:px-12">
         {/* Breadcrumb */}
         <div className="mb-12">
-          <Link href="/products" className="text-sm font-bold text-[#171717]/40 hover:text-[#7A3E2D] transition-colors flex items-center gap-2">
+          <Link href="/sale" className="text-sm font-bold text-[#171717]/40 hover:text-[#7A3E2D] transition-colors flex items-center gap-2">
              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
              </svg>

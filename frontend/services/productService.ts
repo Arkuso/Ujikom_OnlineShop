@@ -30,8 +30,15 @@ const productService = {
     formData.append('Price', data.price.toString());
     formData.append('Stock', data.stock.toString());
     formData.append('CategoryId', data.categoryId.toString());
-    if (data.imageFile) {
-      formData.append('ImageFile', data.imageFile);
+    
+    if (data.specifications) {
+      formData.append('Specifications', data.specifications);
+    }
+
+    if (data.imageFiles && data.imageFiles.length > 0) {
+      data.imageFiles.forEach(file => {
+        formData.append('ImageFiles', file);
+      });
     }
 
     const response = await api.post<ServiceResponse<Product>>('/Product', formData, {
@@ -47,8 +54,15 @@ const productService = {
     formData.append('Price', data.price.toString());
     formData.append('Stock', data.stock.toString());
     formData.append('CategoryId', data.categoryId.toString());
-    if (data.imageFile) {
-      formData.append('ImageFile', data.imageFile);
+    
+    if (data.specifications) {
+      formData.append('Specifications', data.specifications);
+    }
+
+    if (data.imageFiles && data.imageFiles.length > 0) {
+      data.imageFiles.forEach(file => {
+        formData.append('ImageFiles', file);
+      });
     }
 
     const response = await api.put<ServiceResponse<Product>>(`/Product/${id}`, formData, {

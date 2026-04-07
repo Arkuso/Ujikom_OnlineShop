@@ -23,7 +23,19 @@ namespace Backend.Controllers
             return Ok(await _productService.GetAllProducts());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("sale")]
+        public async Task<ActionResult<ServiceResponse<List<ProductDto>>>> GetSaleProducts()
+        {
+            return Ok(await _productService.GetSaleProducts());
+        }
+
+        [HttpGet("featured")]
+        public async Task<ActionResult<ServiceResponse<List<ProductDto>>>> GetFeaturedProducts()
+        {
+            return Ok(await _productService.GetFeaturedProducts());
+        }
+
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<ServiceResponse<ProductDto>>> GetProductById(int id)
         {
             var response = await _productService.GetProductById(id);

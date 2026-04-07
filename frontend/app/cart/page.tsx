@@ -106,12 +106,12 @@ export default function CartPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center bg-[#D9D9D9]">
         <h2 className="text-4xl font-['HKGroteskWide'] font-semibold text-[#171717] mb-6">Cart</h2>
-        <p className="text-[#171717]/60 text-lg mb-12 max-w-sm mx-auto font-['Vercetti-Regular']">
+        <p className="text-[#171717]/60 text-lg mb-12 max-w-sm mx-auto font-vercetti">
           Your collection is empty.
         </p>
         <Link
           href="/products"
-          className="bg-[#1A1A1A] text-white py-5 px-16 text-sm font-['Vercetti-Regular'] rounded-xl hover:bg-black transition-all active:scale-95"
+          className="bg-[#1A1A1A] text-white py-5 px-16 text-sm font-vercetti rounded-xl hover:bg-black transition-all active:scale-95"
         >
           Explore Catalog
         </Link>
@@ -133,7 +133,7 @@ export default function CartPage() {
           {/* Cart List */}
           <div className="lg:col-span-8">
             {/* Table Headers */}
-            <div className="flex justify-between items-center pb-4 border-b border-gray-400 font-['Vercetti-Regular'] text-xl mb-4">
+            <div className="flex justify-between items-center pb-4 border-b border-gray-400 font-vercetti text-xl mb-4">
               <span className="flex-1">Product</span>
               <span className="w-[120px] text-center">Quantity</span>
               <span className="min-w-[150px] text-right">Total</span>
@@ -141,7 +141,7 @@ export default function CartPage() {
 
             <div className="space-y-0">
               {message && (
-                <div className={`p-4 text-center text-sm font-['Vercetti-Regular'] mb-4 ${success ? 'text-emerald-600' : 'text-rose-600'}`}>
+                <div className={`p-4 text-center text-sm font-vercetti mb-4 ${success ? 'text-emerald-600' : 'text-rose-600'}`}>
                   {message}
                 </div>
               )}
@@ -160,23 +160,30 @@ export default function CartPage() {
 
           {/* Checkout Area */}
           <div className="lg:col-span-4">
-            <div className="bg-[#F8F9FA] p-10 rounded-lg sticky top-32 border border-gray-200">
-              <div className="flex justify-between items-baseline mb-12">
-                <span className="text-2xl font-['Vercetti-Regular'] text-[#171717]">Subtotal</span>
-                <span className="text-2xl font-['Vercetti-Regular'] text-[#171717]">Rp {grandTotal.toLocaleString("id-ID")}</span>
+            <div className="bg-[#F8F9FA] p-8 sm:p-10 rounded-xl sticky top-32 border border-gray-200 max-w-md ml-auto">
+              <div className="flex items-center justify-between gap-4 pb-6 border-b border-gray-300">
+                <span className="text-xl font-vercetti text-[#171717]/70">Subtotal</span>
+                <span className="text-xl sm:text-2xl font-vercetti text-[#171717] leading-none tabular-nums whitespace-nowrap text-right">
+                  Rp {grandTotal.toLocaleString("id-ID")}
+                </span>
               </div>
 
-              <div className="mb-12">
-                <span className="block text-lg font-['Vercetti-Regular'] text-[#171717]/50 mb-2">Total Amount</span>
-                <span className="text-5xl font-['Vercetti-Regular'] text-[#171717]">Rp {grandTotal.toLocaleString("id-ID")}</span>
-                <p className="text-xs font-['Vercetti-Regular'] text-[#171717]/50 mt-4 leading-relaxed">
-                  Tax included. Shipping calculated at checkout.
-                </p>
+              <div className="pt-8">
+                <span className="block text-lg font-vercetti text-[#171717]/50 leading-none mb-3">
+                  Total Amount
+                </span>
+                <span className="inline-flex items-baseline gap-2 text-xl sm:text-2xl font-vercetti text-[#171717] leading-none tabular-nums whitespace-nowrap">
+                  Rp {grandTotal.toLocaleString("id-ID")}
+                </span>
               </div>
+
+              <p className="text-sm font-vercetti text-[#171717]/60 mt-6 leading-relaxed">
+                Tax included. Shipping calculated at checkout.
+              </p>
 
               <button
                 onClick={() => router.push("/checkout")}
-                className="block w-full text-white py-5 text-xl font-['Vercetti-Regular'] bg-[#5E6266] hover:bg-[#4E5256] transition-all active:scale-95 text-center"
+                className="mt-8 block w-full text-white py-4 text-xl font-vercetti bg-[#555558] hover:bg-[#47474A] transition-all active:scale-95 text-center"
               >
                 CHECKOUT
               </button>

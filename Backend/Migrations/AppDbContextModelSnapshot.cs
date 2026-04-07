@@ -17,7 +17,7 @@ namespace Backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.2")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -126,6 +126,46 @@ namespace Backend.Migrations
                     b.ToTable("OrderProducts");
                 });
 
+            modelBuilder.Entity("Backend.Models.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PaymentUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("XenditInvoiceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("Payments");
+                });
+
             modelBuilder.Entity("Backend.Models.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -145,12 +185,24 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageUrl2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl4")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Specifications")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Stock")
                         .HasColumnType("int");
@@ -180,6 +232,9 @@ namespace Backend.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
@@ -240,6 +295,17 @@ namespace Backend.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Backend.Models.Payment", b =>
+                {
+                    b.HasOne("Backend.Models.Order", "Order")
+                        .WithOne("Payment")
+                        .HasForeignKey("Backend.Models.Payment", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("Backend.Models.Product", b =>
                 {
                     b.HasOne("Backend.Models.Category", "Category")
@@ -259,6 +325,8 @@ namespace Backend.Migrations
             modelBuilder.Entity("Backend.Models.Order", b =>
                 {
                     b.Navigation("OrderProducts");
+
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("Backend.Models.User", b =>

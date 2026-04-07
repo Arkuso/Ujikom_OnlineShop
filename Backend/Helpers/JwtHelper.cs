@@ -20,9 +20,15 @@ namespace Backend.Helpers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role)
             };
+
+            if (!string.IsNullOrEmpty(user.ProfileImageUrl))
+            {
+                claims.Add(new Claim("profileImageUrl", user.ProfileImageUrl));
+            }
 
             var tokenValue = _configuration.GetSection("AppSettings:Token").Value;
             if (string.IsNullOrWhiteSpace(tokenValue))

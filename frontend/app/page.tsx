@@ -83,7 +83,7 @@ export default function Home() {
               categories.map((cat) => (
                 <Link
                   key={cat.id}
-                  href={`/products?category=${cat.id}`}
+                  href={`/sale?category=${cat.id}`}
                   className="group relative flex flex-col items-center justify-center aspect-square"
                 >
                   <div className="w-full h-full relative rounded-full overflow-hidden bg-white shadow-sm border border-black/5 hover:shadow-2xl transition-all duration-500">
@@ -112,7 +112,7 @@ export default function Home() {
            Join the community of professionals who trust Gravity for their refined toolsets and equipment.
          </p>
          <Link
-            href="/products"
+          href="/sale"
             className="inline-block bg-[#7A3E2D] text-white px-16 py-6 text-sm font-bold rounded-2xl hover:bg-[#5C2D21] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#7A3E2D]/20"
          >
             Explore Full Catalog

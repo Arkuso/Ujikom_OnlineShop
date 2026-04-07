@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization; // Tambahkan using ini untuk format mata uang jika perlu
 using Microsoft.AspNetCore.Http; // Add this using
 
@@ -19,6 +19,12 @@ namespace Backend.DTOs.Product
 
         public int Stock { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl2 { get; set; }
+        public string? ImageUrl3 { get; set; }
+        public string? ImageUrl4 { get; set; }
+        
+        public string? Specifications { get; set; } // JSON String
+
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
     }
@@ -36,9 +42,9 @@ namespace Backend.DTOs.Product
         [Required]
         public int Stock { get; set; }
 
-        // Ganti string ImageUrl menjadi IFormFile
-        // public string ImageUrl { get; set; } = string.Empty;
-        public IFormFile? ImageFile { get; set; }
+        public List<IFormFile>? ImageFiles { get; set; }
+        
+        public string? Specifications { get; set; } // JSON String
 
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
@@ -56,7 +62,9 @@ namespace Backend.DTOs.Product
         [Required]
         public int Stock { get; set; }
 
-        public IFormFile? ImageFile { get; set; }
+        public List<IFormFile>? ImageFiles { get; set; }
+        
+        public string? Specifications { get; set; } // JSON String
 
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;

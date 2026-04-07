@@ -6,15 +6,35 @@ import productService from "@/services/productService";
 import { Category } from "@/types/category";
 import { Product } from "@/types/product";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function SalePage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+
+  const syncCategoryQuery = useCallback(
+    (categoryId: number | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (categoryId) {
+        params.set("category", String(categoryId));
+      } else {
+        params.delete("category");
+      }
+
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,6 +63,22 @@ export default function SalePage() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (!categoryParam) {
+      setActiveCategoryId(null);
+      return;
+    }
+
+    const parsedCategoryId = Number(categoryParam);
+    if (Number.isNaN(parsedCategoryId) || parsedCategoryId <= 0) {
+      setActiveCategoryId(null);
+      return;
+    }
+
+    setActiveCategoryId(parsedCategoryId);
+  }, [searchParams]);
 
   const filteredProducts = useMemo(() => {
     if (!activeCategoryId) return products;
@@ -97,7 +133,10 @@ export default function SalePage() {
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                onClick={() => setActiveCategoryId(null)}
+                onClick={() => {
+                  setActiveCategoryId(null);
+                  syncCategoryQuery(null);
+                }}
                 className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors ${
                   !activeCategoryId ? "bg-black text-white" : "bg-[#F4F4F6] text-[#171717]"
                 }`}
@@ -108,7 +147,10 @@ export default function SalePage() {
                 <button
                   key={category.id}
                   type="button"
-                  onClick={() => setActiveCategoryId(category.id)}
+                  onClick={() => {
+                    setActiveCategoryId(category.id);
+                    syncCategoryQuery(category.id);
+                  }}
                   className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors ${
                     activeCategoryId === category.id ? "bg-black text-white" : "bg-[#F4F4F6] text-[#171717]"
                   }`}
@@ -136,7 +178,10 @@ export default function SalePage() {
             </p>
             <button
               type="button"
-              onClick={() => setActiveCategoryId(null)}
+              onClick={() => {
+                setActiveCategoryId(null);
+                syncCategoryQuery(null);
+              }}
               className="rounded-xl bg-black px-8 py-4 text-sm font-bold text-white hover:bg-black/90 transition-colors"
             >
               Reset Filters

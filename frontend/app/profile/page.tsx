@@ -8,6 +8,7 @@ import authService from "@/services/authService";
 import { Order } from "@/types/order";
 import { useAuthStore } from "@/lib/useAuthstore";
 import { buildUserFromToken } from "@/lib/authSession";
+import OrderCard from "@/components/OrderCard";
 
 type UserRole = "Admin" | "Customer" | null;
 
@@ -179,48 +180,11 @@ export default function ProfilePage() {
 
         {/* Order History Section */}
         {orders.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-['HKGroteskWide'] font-semibold text-black px-2">Order History</h2>
-            <div className="grid grid-cols-1 gap-6">
+          <div className="space-y-10 pt-10">
+            <h2 className="text-4xl font-['HKGroteskWide'] font-bold text-black px-4 tracking-tighter">Order History</h2>
+            <div className="grid grid-cols-1 gap-8 px-2">
               {orders.map((order) => (
-                <div key={order.id} className="bg-[#111111] rounded-[2rem] p-8 text-white relative flex flex-col md:flex-row justify-between gap-6">
-                  <div className="space-y-6 flex-1">
-                    <div className="flex items-center justify-between">
-                       <span className="text-[12px] text-white/40 uppercase tracking-widest font-bold">Order #{order.id}</span>
-                       <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                         order.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
-                         order.status === 'Processing' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
-                         'bg-white/10 text-white/60 border border-white/5'
-                       }`}>
-                         {order.status}
-                       </span>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {order.items.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-6">
-                           <div className="w-16 h-16 bg-white/5 rounded-xl overflow-hidden flex-shrink-0 border border-white/5">
-                             <img 
-                               src={item.imageUrl?.startsWith('http') ? item.imageUrl : `http://localhost:5055${item.imageUrl}`} 
-                               alt={item.productName} 
-                               className="w-full h-full object-contain"
-                             />
-                           </div>
-                           <div>
-                              <p className="text-[18px] font-medium text-white">{item.productName}</p>
-                              <p className="text-[14px] text-white/40">{item.quantity} Unit &middot; Rp {item.price.toLocaleString('id-ID')}</p>
-                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="md:border-l md:border-white/5 md:pl-10 flex flex-col justify-end items-end gap-2">
-                    <p className="text-white/40 text-[12px] uppercase tracking-widest font-bold">Total Assessment</p>
-                    <p className="text-3xl font-bold text-white tracking-tight">Rp {order.totalAmount.toLocaleString('id-ID')}</p>
-                    <p className="text-[11px] text-white/30">{new Date(order.orderDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                  </div>
-                </div>
+                <OrderCard key={order.id} order={order} />
               ))}
             </div>
           </div>

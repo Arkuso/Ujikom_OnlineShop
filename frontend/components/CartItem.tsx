@@ -38,11 +38,11 @@ export default function CartItem({
         <div className="flex flex-col gap-1">
           <Link
             href={`/products/${item.productId}`}
-            className="text-2xl font-['Vercetti-Regular'] text-[#171717] hover:opacity-70 transition-opacity"
+            className="text-2xl font-hk-grotesk-wide text-[#171717] hover:opacity-70 transition-opacity"
           >
             {item.productName}
           </Link>
-          <span className="text-lg font-['Vercetti-Regular'] text-[#171717]">
+          <span className="text-lg font-vercetti text-[#171717]">
             Rp {item.price.toLocaleString("id-ID")}
           </span>
         </div>
@@ -58,7 +58,7 @@ export default function CartItem({
           >
             −
           </button>
-          <div className="w-8 text-center text-lg font-['Vercetti-Regular']">
+          <div className="w-8 text-center text-lg font-vercetti">
             {item.quantity}
           </div>
           <button
@@ -72,7 +72,7 @@ export default function CartItem({
         <button
           onClick={() => onRemove(item.id)}
           disabled={isRemoving || isUpdating}
-          className="text-xs font-['Vercetti-Regular'] text-[#171717] underline underline-offset-4 hover:opacity-60 transition-opacity"
+          className="text-xs font-vercetti text-[#171717] underline underline-offset-4 hover:opacity-60 transition-opacity"
         >
           {isRemoving ? "Removing..." : "Remove"}
         </button>
@@ -80,7 +80,7 @@ export default function CartItem({
 
       {/* Total */}
       <div className="min-w-[150px] text-right">
-        <p className="text-xl font-['Vercetti-Regular'] text-[#171717]">
+        <p className="text-xl font-vercetti text-[#171717]">
           Rp {item.totalPrice.toLocaleString("id-ID")}
         </p>
       </div>

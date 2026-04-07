@@ -14,5 +14,8 @@ namespace Backend.Models
         public int UserId { get; set; }
         public User User { get; set; } = null!;
         public List<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+
+        // Navigation Property mapped to Payment
+        public Payment? Payment { get; set; }
     }
 }

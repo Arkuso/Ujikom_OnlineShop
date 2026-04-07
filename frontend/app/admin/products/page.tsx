@@ -113,184 +113,167 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Message */}
-      {message && (
-        <div
-          className={`p-4 text-sm ${
-            success
-              ? "bg-green-50 text-green-700 border border-green-200"
-              : "bg-red-50 text-red-700 border border-red-200"
-          }`}
-        >
-          {message}
-        </div>
-      )}
+    <div className="space-y-8 max-w-5xl mx-auto py-10 lg:py-14 px-4 sm:px-6">
+      {/* 1. Kartu Atas (Kartu Statistik) */}
+      <div className="bg-[#D9D9D9] p-8 md:p-10 rounded-[2rem]">
+        <h1 className="text-4xl md:text-5xl font-hk-grotesk-wide mb-2 tracking-wide">
+          <span className="text-[#0066FF]">Admin</span> <span className="text-black">Controll</span>
+        </h1>
+        <p className="text-gray-500 font-vercetti text-sm md:text-base mb-8">
+          Administrative Sector <span className="mx-2">·</span> Authorized Stream
+        </p>
 
-      {/* Search & Actions */}
-      <div className="flex items-center gap-4">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or category..."
-          className="flex-1 border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:border-black transition"
-        />
-        <Link
-          href="/admin/products/add"
-          className="bg-black text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 transition whitespace-nowrap"
-        >
-          + Add Product
-        </Link>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="bg-white p-6 md:p-8 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm">
+            <p className="text-gray-500 text-sm font-vercetti mb-3">Product Available</p>
+            <p className="text-3xl lg:text-[40px] leading-tight font-vercetti text-black">Qty {products.length}</p>
+          </div>
+          <div className="bg-white p-6 md:p-8 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm">
+            <p className="text-gray-500 text-sm font-vercetti mb-3">Critical Stock</p>
+            <p className="text-3xl lg:text-[40px] leading-tight font-vercetti text-black">{products.filter(p => p.stock > 0 && p.stock < 10).length}</p>
+          </div>
+          <div className="bg-white p-6 md:p-8 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm">
+            <p className="text-gray-500 text-sm font-vercetti mb-3">Depleted Stock</p>
+            <p className="text-3xl lg:text-[40px] leading-tight font-vercetti text-black">{products.filter(p => p.stock === 0).length}</p>
+          </div>
+        </div>
       </div>
 
-      {/* Products Table */}
-      <div className="bg-white shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
-              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-600 tracking-wide">
-                Product
-              </th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-600 tracking-wide">
-                Category
-              </th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-600 tracking-wide">
-                Price
-              </th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-600 tracking-wide">
-                Stock
-              </th>
-              <th className="text-right px-6 py-3 text-xs font-semibold text-gray-600 tracking-wide">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {filtered.length > 0 ? (
-              filtered.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      {product.imageUrl && (
+      {/* 2. Kartu Bawah (Konten) */}
+      <div className="bg-[#D9D9D9] p-8 md:p-10 rounded-[2rem]">
+        {/* Menu Navigasi */}
+        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+          <Link href="/admin" className="bg-white text-gray-500 font-vercetti px-6 py-3 rounded-xl text-sm hover:bg-gray-50 transition active:scale-95 shadow-sm">
+            Overview
+          </Link>
+          <Link href="/admin/products" className="bg-black text-white font-vercetti px-6 py-3 rounded-xl text-sm transition active:scale-95 shadow-sm">
+            Products
+          </Link>
+          <Link href="/admin/categories" className="bg-white text-gray-500 font-vercetti px-6 py-3 rounded-xl text-sm hover:bg-gray-50 transition active:scale-95 shadow-sm">
+            Categories
+          </Link>
+          <Link href="/admin/orders" className="bg-white text-gray-500 font-vercetti px-6 py-3 rounded-xl text-sm hover:bg-gray-50 transition active:scale-95 shadow-sm">
+            Orders
+          </Link>
+          <Link href="/admin/products/add" className="bg-white text-gray-500 font-vercetti px-6 py-3 rounded-xl text-sm hover:bg-gray-50 transition active:scale-95 shadow-sm">
+            Add product
+          </Link>
+        </div>
+
+        {/* Message */}
+        {message && (
+          <div className={`p-4 mb-8 rounded-xl font-vercetti text-sm ${success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+            {message}
+          </div>
+        )}
+
+        {/* Search & Add Button */}
+        <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
+          <div className="relative flex-1 w-full h-[52px]">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name or category..."
+              className="w-full h-full bg-transparent border border-gray-400/50 rounded-full px-6 text-sm font-vercetti text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition"
+            />
+            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-black">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
+          </div>
+          <Link
+            href="/admin/products/add"
+            className="flex items-center justify-center bg-white border border-black text-black px-8 h-[52px] rounded-full text-sm font-vercetti hover:bg-gray-50 transition active:scale-95 shrink-0"
+          >
+            Add Product
+          </Link>
+        </div>
+
+        {/* Products List */}
+        <div className="space-y-4">
+          {filtered.length > 0 ? (
+            filtered.map((product) => (
+              <div key={product.id} className="bg-white p-6 md:px-8 md:py-6 rounded-2xl shadow-sm overflow-x-auto">
+                <div className="min-w-[700px]">
+                  {/* Header Row */}
+                  <div className="grid grid-cols-[3fr_2fr_2fr_1fr_80px] gap-4 mb-4">
+                    <div className="text-[15px] font-vercetti text-black">Product</div>
+                    <div className="text-[15px] font-vercetti text-black">Category</div>
+                    <div className="text-[15px] font-vercetti text-black">Price</div>
+                    <div className="text-[15px] font-vercetti text-black text-center">Stock</div>
+                    <div className="text-[15px] font-vercetti text-black"></div>
+                  </div>
+
+                  {/* Content Row */}
+                  <div className="grid grid-cols-[3fr_2fr_2fr_1fr_80px] gap-4 items-center">
+                    <div className="flex items-center gap-4">
+                      {product.imageUrl ? (
                         <img
-                          src={
-                            product.imageUrl.startsWith("http")
-                              ? product.imageUrl
-                              : `http://localhost:5055${product.imageUrl}`
-                          }
+                          src={product.imageUrl.startsWith("http") ? product.imageUrl : `http://localhost:5055${product.imageUrl}`}
                           alt={product.name}
-                          className="w-10 h-10 object-cover border border-gray-200"
+                          className="w-[40px] h-[50px] object-cover rounded shadow-sm bg-gray-100 shrink-0"
                         />
+                      ) : (
+                        <div className="w-[40px] h-[50px] bg-gray-200 rounded shrink-0"></div>
                       )}
                       <div>
-                        <p className="text-sm font-medium text-black">
-                          {product.name}
-                        </p>
-                        <p className="text-xs text-gray-400 truncate max-w-[180px]">
-                          {product.description}
-                        </p>
+                        <p className="text-[15px] text-black font-vercetti leading-tight">{product.name}</p>
+                        {/* Nama fallback atau deskripsi singkat apabila dibutuhkan (seperti gambar) */}
+                        <p className="text-sm text-black font-vercetti mt-0.5">{product.name.split(' ')[0]}</p>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {product.categoryName}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-black">
-                    Rp {product.price.toLocaleString("id-ID")}
-                  </td>
-                  <td className="px-6 py-4">
-                    {stockModal === product.id ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          value={quantityToAdd}
-                          onChange={(e) => setQuantityToAdd(e.target.value)}
-                          min={1}
-                          placeholder="Qty"
-                          className="w-16 border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:border-black"
-                        />
-                        <button
-                          onClick={() => handleAddStock(product.id)}
-                          disabled={stockLoading}
-                          className="text-xs font-semibold text-green-700 hover:underline"
-                        >
-                          {stockLoading ? "..." : "Add"}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setStockModal(null);
-                            setQuantityToAdd("");
-                          }}
-                          className="text-xs text-gray-400 hover:text-gray-600"
-                        >
-                          ✕
-                        </button>
+
+                    <div className="text-[15px] font-vercetti text-gray-500">
+                      {product.categoryName}
+                    </div>
+
+                    <div className="text-[15px] font-vercetti text-black">
+                      Rp {product.price.toLocaleString("id-ID")}
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                      <div className={`px-4 flex items-center justify-center h-8 rounded text-sm font-vercetti text-black min-w-[50px] ${product.stock === 0 ? "bg-red-200 text-red-800" : "bg-[#90EE90]"}`}>
+                         {product.stock}
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`px-2 py-1 text-xs font-semibold ${
-                            product.stock === 0
-                              ? "bg-red-50 text-red-700 border border-red-200"
-                              : product.stock < 10
-                              ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                              : "bg-green-50 text-green-700 border border-green-200"
-                          }`}
-                        >
-                          {product.stock}
-                        </span>
-                        <button
-                          onClick={() => setStockModal(product.id)}
-                          className="text-xs text-gray-400 hover:text-black transition"
-                          title="Add stock"
-                        >
-                          + add
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-4">
-                      <Link
-                        href={`/admin/products/${product.id}`}
-                        className="text-xs font-semibold text-black hover:underline"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() =>
-                          handleDelete(product.id, product.name)
-                        }
-                        className="text-xs font-semibold text-red-600 hover:underline"
-                      >
-                        Delete
+                      <button onClick={() => setStockModal(product.id)} className="text-sm font-vercetti text-black mt-1 hover:opacity-70 leading-none">
+                        +
                       </button>
                     </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-6 py-12 text-center text-sm text-gray-400"
-                >
-                  {search
-                    ? "No products match your search."
-                    : "No products yet. Click \"+ Add Product\" to get started."}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
 
-      {/* Footer info */}
-      <div className="text-xs text-gray-400 text-center">
-        <p>
-          Showing {filtered.length} of {products.length} products
-        </p>
+                    <div className="flex flex-col items-center justify-center">
+                      <Link href={`/admin/products/${product.id}`} className="text-sm font-vercetti text-black hover:opacity-70 pb-0.5 w-full text-center border-b border-black">
+                         Edit
+                      </Link>
+                      <button onClick={() => handleDelete(product.id, product.name)} className="text-sm font-vercetti text-red-600 hover:opacity-70 pt-0.5 w-full text-center">
+                         Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Add Stock Inline Input */}
+                {stockModal === product.id && (
+                  <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
+                    <input
+                      type="number"
+                      value={quantityToAdd}
+                      onChange={(e) => setQuantityToAdd(e.target.value)}
+                      min={1}
+                      placeholder="Quantity to add..."
+                      className="flex-1 bg-white border border-gray-300 px-4 py-2 rounded-xl text-sm font-vercetti focus:outline-none"
+                    />
+                    <button onClick={() => handleAddStock(product.id)} disabled={stockLoading} className="bg-black text-white px-6 py-2 rounded-xl text-sm font-vercetti">{stockLoading ? "..." : "Confirm"}</button>
+                    <button onClick={() => setStockModal(null)} className="text-gray-500 text-sm font-vercetti hover:text-black">Cancel</button>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="bg-white p-10 rounded-2xl shadow-sm text-center text-gray-500 font-vercetti">
+              No products found matching your search.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

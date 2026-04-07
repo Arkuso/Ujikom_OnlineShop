@@ -1,5 +1,16 @@
 import { redirect } from "next/navigation";
 
-export default function ProductsPage() {
+type ProductsPageProps = {
+  searchParams?: {
+    category?: string;
+  };
+};
+
+export default function ProductsPage({ searchParams }: ProductsPageProps) {
+  const category = searchParams?.category;
+  if (category) {
+    redirect(`/sale?category=${encodeURIComponent(category)}`);
+  }
+
   redirect("/sale");
 }

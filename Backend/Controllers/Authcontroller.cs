@@ -5,6 +5,7 @@ using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Backend.Controllers
 {
@@ -54,7 +55,8 @@ namespace Backend.Controllers
                         id = user?.Id,
                         name = user?.Name,
                         email = user?.Email,
-                        role = user?.Role
+                        role = user?.Role,
+                        profileImageUrl = user?.ProfileImageUrl
                     }
                 },
                 Message = response.Message,
@@ -62,6 +64,19 @@ namespace Backend.Controllers
             };
 
             return Ok(authResponse);
+        }
+
+        [Authorize]
+        [HttpPost("upload-profile-image")]
+        public async Task<ActionResult<ServiceResponse<string>>> UploadProfileImage(IFormFile image)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _authService.UploadProfileImage(userId, image);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
 
         [Authorize(Roles = "Admin")]

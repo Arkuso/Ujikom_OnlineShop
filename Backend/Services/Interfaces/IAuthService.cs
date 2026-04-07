@@ -7,5 +7,6 @@ namespace Backend.Services.Interfaces
     {
         Task<ServiceResponse<int>> Register(RegisterRequest request);
         Task<ServiceResponse<string>> Login(LoginRequest request);
+        Task<ServiceResponse<string>> UploadProfileImage(int userId, IFormFile image);
     }
 }

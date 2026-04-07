@@ -13,6 +13,7 @@ namespace Backend.Models
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
         public string Role { get; set; } = "Customer";
+        public string? ProfileImageUrl { get; set; }
 
         public List<Cart> Carts { get; set; } = new List<Cart>();
         public List<Order> Orders { get; set; } = new List<Order>();

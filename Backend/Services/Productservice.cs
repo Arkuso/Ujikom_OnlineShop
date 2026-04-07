@@ -1,4 +1,4 @@
-﻿using AutoMapper; // Wajib ada agar IMapper dikenali
+using AutoMapper; // Wajib ada agar IMapper dikenali
 using Backend.Data;
 using Backend.DTOs;
 using Backend.DTOs.Product;
@@ -26,9 +26,30 @@ namespace Backend.Services
 
         public async Task<ServiceResponse<List<ProductDto>>> GetAllProducts()
         {
+            return await GetSaleProducts();
+        }
+
+        public async Task<ServiceResponse<List<ProductDto>>> GetSaleProducts()
+        {
             var response = new ServiceResponse<List<ProductDto>>();
-            var products = await _context.Products.Include(p => p.Category).ToListAsync();
-            // Gunakan AutoMapper untuk mapping otomatis
+            var products = await _context.Products
+                .Include(p => p.Category)
+                .OrderBy(p => p.Id)
+                .ToListAsync();
+
+            response.Data = _mapper.Map<List<ProductDto>>(products);
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<ProductDto>>> GetFeaturedProducts()
+        {
+            var response = new ServiceResponse<List<ProductDto>>();
+            var products = await _context.Products
+                .Include(p => p.Category)
+                .OrderByDescending(p => p.Id)
+                .Take(8)
+                .ToListAsync();
+
             response.Data = _mapper.Map<List<ProductDto>>(products);
             return response;
         }
@@ -77,40 +98,46 @@ namespace Backend.Services
             }
 
             // 2. Proses Upload Gambar
-            string imageUrl = "https://via.placeholder.com/150"; // Default image jika tidak ada upload
+            string imageUrl = "https://via.placeholder.com/1000x1200?text=Product";
+            string? imageUrl2 = null;
+            string? imageUrl3 = null;
+            string? imageUrl4 = null;
 
-            if (productDto.ImageFile != null)
+            if (productDto.ImageFiles != null && productDto.ImageFiles.Count > 0)
             {
-                // Pastikan WebRootPath tidak null (null jika folder wwwroot belum ada)
-                var webRootPath = _environment.WebRootPath
-                    ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
-
-                // Tentukan folder penyimpanan (wwwroot/images)
+                var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
                 string uploadsFolder = Path.Combine(webRootPath, "images");
 
-                // Buat folder jika belum ada
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
-                // Buat nama file unik menggunakan GUID + ekstensi asli
-                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(productDto.ImageFile.FileName);
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                var uploadedUrls = new List<string>();
 
-                // Simpan file fisik
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                foreach (var file in productDto.ImageFiles.Take(4)) // Max 4
                 {
-                    await productDto.ImageFile.CopyToAsync(fileStream);
+                    string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+                    uploadedUrls.Add("/images/" + uniqueFileName);
                 }
 
-                // Set URL gambar untuk disimpan di database
-                // Contoh: /images/guid.jpg
-                imageUrl = "/images/" + uniqueFileName;
+                if (uploadedUrls.Count > 0) imageUrl = uploadedUrls[0];
+                if (uploadedUrls.Count > 1) imageUrl2 = uploadedUrls[1];
+                if (uploadedUrls.Count > 2) imageUrl3 = uploadedUrls[2];
+                if (uploadedUrls.Count > 3) imageUrl4 = uploadedUrls[3];
             }
 
             // 3. Simpan ke Database
             var product = _mapper.Map<Product>(productDto);
             product.CategoryId = category.Id;
-            product.ImageUrl = imageUrl; // Set path gambar hasil upload
+            product.ImageUrl = imageUrl;
+            product.ImageUrl2 = imageUrl2;
+            product.ImageUrl3 = imageUrl3;
+            product.ImageUrl4 = imageUrl4;
+            product.Specifications = productDto.Specifications;
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -164,34 +191,36 @@ namespace Backend.Services
             product.Stock = productDto.Stock;
             product.CategoryId = category.Id;
 
-            // 3. Proses Upload Gambar (jika ada file baru)
-            if (productDto.ImageFile != null)
-            {
-                var webRootPath = _environment.WebRootPath
-                    ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            // 3. Update field spesifikasi
+            product.Specifications = productDto.Specifications;
 
+            // 4. Proses Upload Gambar (jika ada file baru)
+            if (productDto.ImageFiles != null && productDto.ImageFiles.Count > 0)
+            {
+                var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
                 string uploadsFolder = Path.Combine(webRootPath, "images");
 
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
-                // Hapus gambar lama jika bukan placeholder
-                if (!string.IsNullOrEmpty(product.ImageUrl) && !product.ImageUrl.StartsWith("http"))
+                var uploadedUrls = new List<string>();
+
+                foreach (var file in productDto.ImageFiles.Take(4))
                 {
-                    var oldFilePath = Path.Combine(webRootPath, product.ImageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-                    if (File.Exists(oldFilePath))
-                        File.Delete(oldFilePath);
+                    string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+                    uploadedUrls.Add("/images/" + uniqueFileName);
                 }
 
-                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(productDto.ImageFile.FileName);
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await productDto.ImageFile.CopyToAsync(fileStream);
-                }
-
-                product.ImageUrl = "/images/" + uniqueFileName;
+                // Override images if new files were uploaded
+                if (uploadedUrls.Count > 0) product.ImageUrl = uploadedUrls[0];
+                if (uploadedUrls.Count > 1) product.ImageUrl2 = uploadedUrls[1];
+                if (uploadedUrls.Count > 2) product.ImageUrl3 = uploadedUrls[2];
+                if (uploadedUrls.Count > 3) product.ImageUrl4 = uploadedUrls[3];
             }
 
             await _context.SaveChangesAsync();

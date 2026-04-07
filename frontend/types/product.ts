@@ -6,6 +6,10 @@ export interface Product {
   formattedPrice: string;
   stock: number;
   imageUrl: string;
+  imageUrl2?: string;
+  imageUrl3?: string;
+  imageUrl4?: string;
+  specifications?: string; // JSON string
   categoryId: number;
   categoryName: string;
 }
@@ -15,6 +19,7 @@ export interface CreateProductDto {
   description: string;
   price: number;
   stock: number;
-  imageFile?: File;
+  imageFiles?: File[];
+  specifications?: string; // JSON string
   categoryId: number;
 }

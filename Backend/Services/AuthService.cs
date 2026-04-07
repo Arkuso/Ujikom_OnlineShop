@@ -6,6 +6,8 @@ using Backend.Helpers;
 using Backend.Models;
 using Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Backend.Services
 {
@@ -14,12 +16,14 @@ namespace Backend.Services
         private readonly AppDbContext _context;
         private readonly JwtHelper _jwtHelper;
         private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _environment;
 
-        public AuthService(AppDbContext context, JwtHelper jwtHelper, IMapper mapper)
+        public AuthService(AppDbContext context, JwtHelper jwtHelper, IMapper mapper, IWebHostEnvironment environment)
         {
             _context = context;
             _jwtHelper = jwtHelper;
             _mapper = mapper;
+            _environment = environment;
         }
 
         public async Task<ServiceResponse<string>> Login(LoginRequest request)
@@ -68,6 +72,38 @@ namespace Backend.Services
 
             response.Data = user.Id;
             response.Message = "Registration successful.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<string>> UploadProfileImage(int userId, IFormFile image)
+        {
+            var response = new ServiceResponse<string>();
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = "User not found.";
+                return response;
+            }
+
+            var imagesFolder = Path.Combine(_environment.WebRootPath, "images", "profiles");
+            if (!Directory.Exists(imagesFolder))
+                Directory.CreateDirectory(imagesFolder);
+
+            var fileName = $"{userId}_{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
+            var filePath = Path.Combine(imagesFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+
+            user.ProfileImageUrl = $"/images/profiles/{fileName}";
+            await _context.SaveChangesAsync();
+
+            response.Data = user.ProfileImageUrl;
+            response.Message = "Profile image updated.";
             return response;
         }
 

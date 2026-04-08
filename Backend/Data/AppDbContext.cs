@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 
 namespace Backend.Data
@@ -21,8 +21,12 @@ namespace Backend.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure relationships if needed, though attributes are mostly sufficient.
-            // Example: define composite keys or restrictive delete behaviors here.
+            // Cegah penghapusan produk jika sudah ada di riwayat pesanan (Restrict Delete)
+            modelBuilder.Entity<OrderProduct>()
+                .HasOne(op => op.Product)
+                .WithMany()
+                .HasForeignKey(op => op.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

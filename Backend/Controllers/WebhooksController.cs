@@ -25,12 +25,7 @@ namespace Backend.Controllers
             Request.Headers.TryGetValue("x-callback-token", out var receivedToken);
             if (string.IsNullOrEmpty(_callbackToken) || receivedToken != _callbackToken)
             {
-                if (!string.IsNullOrEmpty(_callbackToken) && _callbackToken != "YOUR_XENDIT_CALLBACK_TOKEN")
-                {
-                    return Unauthorized("Invalid Callback Token");
-                }
-                // Jika masih mode YOUR_XENDIT_CALLBACK_TOKEN (testing), abaikan pengecekan untuk sementara 
-                // agar dev tidak pusing saat test localhost
+                return Unauthorized("Invalid Callback Token");
             }
 
             try
@@ -52,6 +47,12 @@ namespace Backend.Controllers
                         .FirstOrDefaultAsync(p => p.OrderId == orderId);
 
                     if (payment == null) return NotFound("Payment not found for this order");
+
+                    // Idempotency: Jika sudah dibayar, abaikan webhook duplikat
+                    if (payment.Status == "PAID" || payment.Status == "SETTLED")
+                    {
+                        return Ok("Webhook already processed (Idempotent response)");
+                    }
 
                     payment.XenditInvoiceId = invoiceId ?? payment.XenditInvoiceId;
                     payment.Status = status ?? payment.Status;

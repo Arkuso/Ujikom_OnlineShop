@@ -105,6 +105,18 @@ namespace Backend.Services
 
             if (productDto.ImageFiles != null && productDto.ImageFiles.Count > 0)
             {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                foreach (var file in productDto.ImageFiles)
+                {
+                    var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                    if (!allowedExtensions.Contains(extension) || !file.ContentType.StartsWith("image/"))
+                    {
+                        response.Success = false;
+                        response.Message = "Invalid file type. Only JPG, PNG, and WEBP images are allowed.";
+                        return response;
+                    }
+                }
+
                 var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
                 string uploadsFolder = Path.Combine(webRootPath, "images");
 
@@ -197,6 +209,18 @@ namespace Backend.Services
             // 4. Proses Upload Gambar (jika ada file baru)
             if (productDto.ImageFiles != null && productDto.ImageFiles.Count > 0)
             {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                foreach (var file in productDto.ImageFiles)
+                {
+                    var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                    if (!allowedExtensions.Contains(extension) || !file.ContentType.StartsWith("image/"))
+                    {
+                        response.Success = false;
+                        response.Message = "Invalid file type. Only JPG, PNG, and WEBP images are allowed.";
+                        return response;
+                    }
+                }
+
                 var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
                 string uploadsFolder = Path.Combine(webRootPath, "images");
 
@@ -234,6 +258,13 @@ namespace Backend.Services
         public async Task<ServiceResponse<ProductDto>> AddStock(UpdateStockDto stockDto)
         {
             var response = new ServiceResponse<ProductDto>();
+            if (stockDto.QuantityToAdd <= 0)
+            {
+                response.Success = false;
+                response.Message = "Quantity to add must be greater than zero.";
+                return response;
+            }
+
             // stockDto.ProductId sekarang aman (tidak ambiguous)
             var product = await _context.Products.FindAsync(stockDto.ProductId);
             

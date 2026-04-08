@@ -11,11 +11,13 @@ namespace Backend.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _secretKey;
+        private readonly string _frontendBaseUrl;
 
         public XenditService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _secretKey = configuration["Xendit:SecretKey"] ?? "";
+            _frontendBaseUrl = configuration["FrontendBaseUrl"] ?? "http://localhost:3000";
         }
 
         public async Task<string?> CreateInvoiceAsync(Order order, string userEmail = "buyer@onlineshop.com")
@@ -34,8 +36,8 @@ namespace Backend.Services
                 amount = (long)order.TotalAmount,
                 payer_email = userEmail,
                 description = $"Payment for Order #{order.Id}",
-                success_redirect_url = "http://localhost:3000/profile",
-                failure_redirect_url = "http://localhost:3000/profile"
+                success_redirect_url = $"{_frontendBaseUrl}/profile",
+                failure_redirect_url = $"{_frontendBaseUrl}/profile"
             };
 
             var request = new HttpRequestMessage(HttpMethod.Post, requestUri);

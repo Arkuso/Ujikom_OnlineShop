@@ -24,15 +24,18 @@ interface OrderResult {
   orderDate: string;
   totalAmount: number;
   status: string;
+  paymentUrl?: string;
 }
+
+import { useToastStore } from "@/lib/useToaststore";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const fetchGlobalCart = useCartStore((state) => state.fetchCart);
+  const { showToast } = useToastStore();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [placing, setPlacing] = useState(false);
-  const [error, setError] = useState("");
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
 
   const fetchCart = useCallback(async () => {
@@ -45,10 +48,10 @@ export default function CheckoutPage() {
         }
         setCartItems(response.data);
       } else {
-        setError(response.message || "Failed to load cart.");
+        showToast(response.message || "Failed to load cart.", "error");
       }
     } catch {
-      setError("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setLoading(false);
     }
@@ -67,17 +70,24 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
     setPlacing(true);
-    setError("");
     try {
       const response = await orderService.checkout();
       if (response.success && response.data) {
-        setOrderResult(response.data);
         await fetchGlobalCart();
+        
+        // Redirect to Xendit Payment Gateway
+        if (response.data.paymentUrl && response.data.paymentUrl.startsWith("http")) {
+          showToast("Order placed. Redirecting to payment...", "success");
+          window.location.href = response.data.paymentUrl;
+        } else {
+          // Fallback if no payment url generated
+          setOrderResult(response.data);
+        }
       } else {
-        setError(response.message || "Checkout failed. Please try again.");
+        showToast(response.message || "Checkout failed. Please try again.", "error");
       }
     } catch {
-      setError("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setPlacing(false);
     }
@@ -135,10 +145,10 @@ export default function CheckoutPage() {
           </div>
           <div className="flex flex-col gap-3">
             <Link
-              href="/orders"
+              href="/profile"
               className="block w-full bg-black text-white py-3 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 transition text-center"
             >
-              View My Orders
+              View Profile
             </Link>
             <Link
               href="/products"
@@ -167,12 +177,6 @@ export default function CheckoutPage() {
           <h1 className="text-3xl font-bold text-black mt-4">Checkout</h1>
           <p className="text-gray-500 text-sm mt-1">Review your order before confirming.</p>
         </div>
-
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-sm text-red-700">
-            {error}
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Item Review */}

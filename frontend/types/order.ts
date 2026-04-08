@@ -15,5 +15,6 @@ export interface Order {
   totalAmount: number;
   formattedTotalAmount: string;
   status: string;
+  paymentUrl?: string;
   items: OrderItem[];
 }

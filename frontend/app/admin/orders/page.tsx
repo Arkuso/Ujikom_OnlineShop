@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import orderService from "@/services/orderService";
 import productService from "@/services/productService";
+import { useToastStore } from "@/lib/useToaststore";
 
 type OrderItem = {
   productId: number;
@@ -25,11 +26,10 @@ type Order = {
 const STATUS_OPTIONS = ["Pending", "Processing", "Shipped", "Completed", "Cancelled"] as const;
 
 export default function AdminOrdersPage() {
+  const { showToast } = useToastStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
 
   // Layout stats state
   const [totalProducts, setTotalProducts] = useState(0);
@@ -46,8 +46,7 @@ export default function AdminOrdersPage() {
       if (orderRes.success && orderRes.data) {
         setOrders(orderRes.data);
       } else {
-        setSuccess(false);
-        setMessage(orderRes.message || "Failed to load orders.");
+        showToast(orderRes.message || "Failed to load orders.", "error");
       }
 
       if (prodRes.success && prodRes.data) {
@@ -57,8 +56,7 @@ export default function AdminOrdersPage() {
         setDepletedStock(prods.filter((p: any) => p.stock === 0).length);
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setLoading(false);
     }
@@ -74,23 +72,19 @@ export default function AdminOrdersPage() {
       const response = await orderService.updateStatus(orderId, status);
 
       if (response.success && response.data) {
-        setSuccess(true);
-        setMessage("Order status updated.");
+        showToast("Order status updated.", "success");
         setOrders((prev) =>
           prev.map((order) =>
             order.id === orderId ? { ...order, status: response.data!.status } : order
           )
         );
       } else {
-        setSuccess(false);
-        setMessage(response.message || "Failed to update status.");
+        showToast(response.message || "Failed to update status.", "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setUpdatingId(null);
-      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -150,11 +144,7 @@ export default function AdminOrdersPage() {
           </Link>
         </div>
 
-        {message && (
-          <div className={`p-4 mb-8 rounded-xl text-sm font-vercetti ${success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
-            {message}
-          </div>
-        )}
+
 
         {/* Order Management Section */}
         <div className="bg-white rounded-3xl overflow-hidden shadow-sm">

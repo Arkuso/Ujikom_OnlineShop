@@ -89,6 +89,19 @@
           }
         }
       },
+      "Macross.Json.Extensions/2.1.0-beta4": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.1/Macross.Json.Extensions.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.1/Macross.Json.Extensions.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.AspNetCore.Authentication.JwtBearer/10.0.5": {
         "type": "package",
         "dependencies": {
@@ -1172,6 +1185,18 @@
         "build": {
           "buildTransitive/net8.0/_._": {}
         }
+      },
+      "Xendit.net/1.1.0": {
+        "type": "package",
+        "dependencies": {
+          "Macross.Json.Extensions": "2.1.0-beta4"
+        },
+        "compile": {
+          "lib/net5.0/Xendit.net.dll": {}
+        },
+        "runtime": {
+          "lib/net5.0/Xendit.net.dll": {}
+        }
       }
     }
   },
@@ -1290,6 +1315,21 @@
         "lib/netstandard2.0/Humanizer.dll",
         "lib/netstandard2.0/Humanizer.xml",
         "logo.png"
+      ]
+    },
+    "Macross.Json.Extensions/2.1.0-beta4": {
+      "sha512": "bokyMC2gYUE1Dsahz7qCruZ59LbZGM+8757fCW+CaNfS0E3f+LQTVOY7bzx/F8FBpQtE0lhh6Vv2URRGspm3wg==",
+      "type": "package",
+      "path": "macross.json.extensions/2.1.0-beta4",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Macross.Json.Extensions.dll",
+        "lib/netstandard2.0/Macross.Json.Extensions.xml",
+        "lib/netstandard2.1/Macross.Json.Extensions.dll",
+        "lib/netstandard2.1/Macross.Json.Extensions.xml",
+        "macross.json.extensions.2.1.0-beta4.nupkg.sha512",
+        "macross.json.extensions.nuspec"
       ]
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/10.0.5": {
@@ -3637,6 +3677,22 @@
         "system.security.cryptography.protecteddata.nuspec",
         "useSharedDesignerContext.txt"
       ]
+    },
+    "Xendit.net/1.1.0": {
+      "sha512": "1JL5xywKDr9oOKCsopBiOHXnUVZ/bWDMmZndvXh00Y/gEYk817+jKcsHla7hDwEtcDFleP8dWgAL4+qwEeI8TA==",
+      "type": "package",
+      "path": "xendit.net/1.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "lib/net48/Xendit.net.dll",
+        "lib/net5.0/Xendit.net.dll",
+        "lib/netcoreapp3.1/Xendit.net.dll",
+        "lib/netstandard2.0/Xendit.net.dll",
+        "xendit.net.1.1.0.nupkg.sha512",
+        "xendit.net.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
@@ -3647,7 +3703,8 @@
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 10.0.5",
       "Microsoft.EntityFrameworkCore.SqlServer >= 10.0.5",
       "Microsoft.EntityFrameworkCore.Tools >= 10.0.5",
-      "Swashbuckle.AspNetCore >= 6.6.2"
+      "Swashbuckle.AspNetCore >= 6.6.2",
+      "Xendit.net >= 1.1.0"
     ]
   },
   "packageFolders": {
@@ -3729,6 +3786,10 @@
           "Swashbuckle.AspNetCore": {
             "target": "Package",
             "version": "[6.6.2, )"
+          },
+          "Xendit.net": {
+            "target": "Package",
+            "version": "[1.1.0, )"
           }
         },
         "imports": [

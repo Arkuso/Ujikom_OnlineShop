@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import productService from "@/services/productService";
 import categoryService from "@/services/categoryService";
+import { useToastStore } from "@/lib/useToaststore";
 
 interface Category {
   id: number;
@@ -15,6 +16,7 @@ export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const productId = params.id;
+  const { showToast } = useToastStore();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -27,8 +29,6 @@ export default function EditProductPage() {
   const [imagePreview, setImagePreview] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
@@ -50,10 +50,10 @@ export default function EditProductPage() {
         setCategoryName(p.categoryName || "");
         setImageUrl(p.imageUrl || "");
       } else {
-        setMessage("Product not found.");
+        showToast("Product not found.", "error");
       }
     } catch {
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setFetching(false);
     }
@@ -86,7 +86,6 @@ export default function EditProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     try {
       const response = await productService.update(Number(productId), {
@@ -95,22 +94,17 @@ export default function EditProductPage() {
         price: Number(price),
         stock: Number(stock),
         categoryId: Number(categoryId),
-        imageFile: imageFile || undefined,
+        imageFiles: imageFile ? [imageFile] : undefined,
       });
 
       if (response.success) {
-        setSuccess(true);
-        setMessage("Product updated successfully!");
-        setTimeout(() => {
-          router.push("/admin/products");
-        }, 1500);
+        showToast("Product updated successfully!", "success");
+        router.push("/admin/products");
       } else {
-        setSuccess(false);
-        setMessage(`Failed: ${response.message}`);
+        showToast(`Failed: ${response.message}`, "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setLoading(false);
     }
@@ -125,22 +119,17 @@ export default function EditProductPage() {
       const response = await productService.addStock(Number(productId), qty);
 
       if (response.success) {
-        setSuccess(true);
-        setMessage(`Stock updated! Added ${quantityToAdd} items.`);
+        showToast(`Stock updated! Added ${quantityToAdd} items.`, "success");
         setStock((parseInt(stock) + qty).toString());
         setQuantityToAdd("");
       } else {
-        setSuccess(false);
-        setMessage(`Failed: ${response.message}`);
+        showToast(`Failed: ${response.message}`, "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setStockLoading(false);
     }
-
-    setTimeout(() => setMessage(""), 3000);
   };
 
   if (fetching) {
@@ -179,18 +168,7 @@ export default function EditProductPage() {
           </p>
         </div>
 
-        {/* Message */}
-        {message && (
-          <div
-            className={`mb-6 p-4 text-sm ${
-              success
-                ? "bg-green-50 text-green-700 border border-green-200"
-                : "bg-red-50 text-red-700 border border-red-200"
-            }`}
-          >
-            {message}
-          </div>
-        )}
+
 
         {/* Form Card */}
         <div className="bg-white p-8 shadow-sm border border-gray-200">

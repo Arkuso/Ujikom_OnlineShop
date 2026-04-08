@@ -5,11 +5,12 @@ import productService from "@/services/productService";
 import { Product } from "@/types/product";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useToastStore } from "@/lib/useToaststore";
 
 export default function NewFeaturedPage() {
+  const { showToast } = useToastStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,10 +19,10 @@ export default function NewFeaturedPage() {
         if (response.success) {
           setProducts(response.data || []);
         } else {
-          setMessage(response.message || "Failed to load featured products.");
+          showToast(response.message || "Failed to load featured products.", "error");
         }
       } catch {
-        setMessage("Connection failed. Check your network.");
+        showToast("Connection failed. Check your network.", "error");
       } finally {
         setLoading(false);
       }
@@ -54,10 +55,6 @@ export default function NewFeaturedPage() {
         {loading ? (
           <div className="min-h-[40vh] flex items-center justify-center">
             <div className="w-10 h-10 border-4 border-black/10 border-t-black rounded-full animate-spin"></div>
-          </div>
-        ) : message ? (
-          <div className="mx-auto max-w-xl rounded-2xl border border-rose-100 bg-rose-50 px-10 py-8 text-center text-[10px] font-bold uppercase tracking-widest text-rose-600">
-            {message}
           </div>
         ) : products.length === 0 ? (
           <div className="mx-auto max-w-2xl rounded-3xl bg-white px-10 py-24 text-center shadow-sm border border-black/5">

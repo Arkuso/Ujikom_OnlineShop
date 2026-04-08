@@ -4,27 +4,25 @@ import authService from "@/services/authService";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToastStore } from "@/lib/useToaststore";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { showToast } = useToastStore();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     try {
       const response = await authService.register({ name, email, password });
 
       if (response.success) {
-        setSuccess(true);
-        setMessage("Membership created successfully. Redirecting...");
+        showToast("Membership created successfully. Redirecting...", "success");
         setName("");
         setEmail("");
         setPassword("");
@@ -33,12 +31,10 @@ export default function RegisterPage() {
            router.push("/login");
         }, 2000);
       } else {
-        setSuccess(false);
-        setMessage(`Error: ${response.message}`);
+        showToast(response.message || "Registration failed.", "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Connection error. Check backend signal.");
+      showToast("Connection error. Check backend signal.", "error");
     } finally {
       setLoading(false);
     }
@@ -59,11 +55,7 @@ export default function RegisterPage() {
           </h2>
         </div>
 
-        {message && (
-          <div className={`mb-6 rounded-2xl border px-5 py-4 text-center font-vercetti text-xs font-medium uppercase tracking-widest ${success ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "border-rose-100 bg-rose-50 text-rose-700"}`}>
-            {message}
-          </div>
-        )}
+
 
         <form onSubmit={handleRegister} className="space-y-5">
           <div className="space-y-2">

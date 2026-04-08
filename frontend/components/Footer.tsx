@@ -32,7 +32,7 @@ export default function Footer() {
                 <Link href="/products" className="text-gray-500 hover:text-[#FF5E00] transition-colors text-sm uppercase font-bold tracking-widest">Products</Link>
               </li>
               <li>
-                <Link href="/orders" className="text-gray-500 hover:text-[#FF5E00] transition-colors text-sm uppercase font-bold tracking-widest">My Orders</Link>
+                <Link href="/profile" className="text-gray-500 hover:text-[#FF5E00] transition-colors text-sm uppercase font-bold tracking-widest">Profile</Link>
               </li>
               <li>
                 <Link href="/cart" className="text-gray-500 hover:text-[#FF5E00] transition-colors text-sm uppercase font-bold tracking-widest">Cart</Link>

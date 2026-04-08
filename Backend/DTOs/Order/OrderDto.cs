@@ -12,6 +12,7 @@ namespace Backend.DTOs.Order
         public decimal TotalAmount { get; set; }
         public string FormattedTotalAmount => string.Format(new CultureInfo("id-ID"), "{0:C0}", TotalAmount);
         public string Status { get; set; } = string.Empty;
+        public string? PaymentUrl { get; set; }
         public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }
 

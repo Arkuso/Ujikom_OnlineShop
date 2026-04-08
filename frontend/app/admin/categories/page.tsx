@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import categoryService from "@/services/categoryService";
 import productService from "@/services/productService";
+import { useToastStore } from "@/lib/useToaststore";
 
 type Category = {
   id: number;
@@ -12,6 +13,7 @@ type Category = {
 };
 
 export default function AdminCategoriesPage() {
+  const { showToast } = useToastStore();
   const [categories, setCategories] = useState<Category[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [criticalStock, setCriticalStock] = useState(0);
@@ -19,8 +21,6 @@ export default function AdminCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -46,8 +46,7 @@ export default function AdminCategoriesPage() {
         setDepletedStock(prods.filter((p: any) => p.stock === 0).length);
       }
     } catch {
-      setSuccess(false);
-      setMessage("Failed to load data.");
+      showToast("Failed to load data.", "error");
     } finally {
       setLoading(false);
     }
@@ -71,20 +70,16 @@ export default function AdminCategoriesPage() {
       const response = await categoryService.create({ name: name.trim(), description: description.trim() });
 
       if (response.success) {
-        setSuccess(true);
-        setMessage("Category created successfully.");
+        showToast("Category created successfully.", "success");
         resetForm();
         await fetchData();
       } else {
-        setSuccess(false);
-        setMessage(response.message || "Failed to create category.");
+        showToast(response.message || "Failed to create category.", "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setSaving(false);
-      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -108,20 +103,16 @@ export default function AdminCategoriesPage() {
       const response = await categoryService.update(id, { name: editName.trim(), description: editDescription.trim() });
 
       if (response.success) {
-        setSuccess(true);
-        setMessage("Category updated successfully.");
+        showToast("Category updated successfully.", "success");
         cancelEdit();
         await fetchData();
       } else {
-        setSuccess(false);
-        setMessage(response.message || "Failed to update category.");
+        showToast(response.message || "Failed to update category.", "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setSaving(false);
-      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -133,19 +124,15 @@ export default function AdminCategoriesPage() {
       const response = await categoryService.delete(id);
 
       if (response.success) {
-        setSuccess(true);
-        setMessage("Category deleted successfully.");
+        showToast("Category deleted successfully.", "success");
         await fetchData();
       } else {
-        setSuccess(false);
-        setMessage(response.message || "Failed to delete category.");
+        showToast(response.message || "Failed to delete category.", "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setSaving(false);
-      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -205,11 +192,7 @@ export default function AdminCategoriesPage() {
           </Link>
         </div>
 
-        {message && (
-          <div className={`p-4 mb-8 rounded-xl font-vercetti text-sm ${success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
-            {message}
-          </div>
-        )}
+
 
         {/* Add Category Section */}
         <div className="mb-10">

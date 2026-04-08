@@ -6,6 +6,7 @@ import { Product } from "@/types/product";
 import { useCartStore } from "@/lib/useCartstore";
 import { useAuthStore } from "@/lib/useAuthstore";
 import { getValidToken } from "@/lib/authSession";
+import { useToastStore } from "@/lib/useToaststore";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -16,11 +17,10 @@ export default function ProductDetailPage() {
   const productId = params.id;
   const fetchCart = useCartStore((state) => state.fetchCart);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { showToast } = useToastStore();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [selectedSize, setSelectedSize] = useState("42");
   const [selectedColor, setSelectedColor] = useState("dark");
@@ -31,10 +31,10 @@ export default function ProductDetailPage() {
       if (response.success && response.data) {
         setProduct(response.data);
       } else {
-        setMessage(response.message || "Product not found.");
+        showToast(response.message || "Product not found.", "error");
       }
     } catch {
-      setMessage("Connection failed. Check your network.");
+      showToast("Connection failed. Check your network.", "error");
     } finally {
       setLoading(false);
     }
@@ -64,8 +64,7 @@ export default function ProductDetailPage() {
 
     const token = getValidToken();
     if (!token) {
-      setSuccess(false);
-      setMessage("Please login to add items to your cart.");
+      showToast("Please login to add items to your cart.", "error");
       router.push("/login");
       return;
     }
@@ -74,16 +73,13 @@ export default function ProductDetailPage() {
     try {
       const response = await cartService.addToCart({ productId: product.id, quantity: 1 });
       if (response.success) {
-        setSuccess(true);
-        setMessage("Added to your cart successfully.");
+        showToast("Added to your cart successfully.", "success");
         await fetchCart();
       } else {
-        setSuccess(false);
-        setMessage(response.message || "Failed to add item.");
+        showToast(response.message || "Failed to add item.", "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Error communicating with server.");
+      showToast("Error communicating with server.", "error");
     } finally {
       setAddingToCart(false);
     }
@@ -282,11 +278,7 @@ export default function ProductDetailPage() {
                        </button>
                     </div>
 
-                    {message && (
-                      <div className={`mt-2 text-[14px] font-vercetti font-medium ${success ? 'text-green-600' : 'text-red-600'}`}>
-                        {message}
-                      </div>
-                    )}
+
                  </div>
               </div>
           </div>

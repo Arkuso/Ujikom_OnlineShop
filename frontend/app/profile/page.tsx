@@ -10,12 +10,15 @@ import { useAuthStore } from "@/lib/useAuthstore";
 import { buildUserFromToken } from "@/lib/authSession";
 import OrderCard from "@/components/OrderCard";
 
+import { useToastStore } from "@/lib/useToaststore";
+
 type UserRole = "Admin" | "Customer" | null;
 
 export default function ProfilePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user: storeUser, login, logout, syncFromStorage } = useAuthStore();
+  const { showToast } = useToastStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -61,22 +64,16 @@ export default function ProfilePage() {
     try {
       const res = await authService.uploadProfileImage(file);
       if (res.success && res.data) {
-        // Update user data by rebuilding from potential new token, 
-        // but here we just need to update the profileImageUrl.
-        // For simplicity, let's just re-fetch or manually update the store.
+        showToast("Profile image updated successfully.", "success");
         const token = localStorage.getItem("token");
-        if (token) {
-          // In a real app the backend might return a new token with updated claims,
-          // but here we can just update the current state if needed.
-          // For now, let's assume the user needs to re-login or we manually update store.
-          // Since our buildUserFromToken decodes the token, we'd ideally want a new token.
-          // However, we can patch the store user directly for immediate UI update.
-          if (storeUser) {
-             login({ ...storeUser, profileImageUrl: res.data }, token);
-          }
+        if (token && storeUser) {
+           login({ ...storeUser, profileImageUrl: res.data }, token);
         }
+      } else {
+        showToast(res.message || "Failed to upload image.", "error");
       }
     } catch (error) {
+      showToast("Error uploading image. Check your connection.", "error");
       console.error("Failed to upload image", error);
     } finally {
       setUploading(false);

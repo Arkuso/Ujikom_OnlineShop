@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import productService from "@/services/productService";
 import categoryService from "@/services/categoryService";
+import { useToastStore } from "@/lib/useToaststore";
 
 interface Category {
   id: number;
@@ -13,6 +14,7 @@ interface Category {
 
 export default function AddProductPage() {
   const router = useRouter();
+  const { showToast } = useToastStore();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -33,8 +35,6 @@ export default function AddProductPage() {
   ]);
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Layout stats state
@@ -97,7 +97,6 @@ export default function AddProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     try {
       // Filter out empty spec rows
@@ -114,18 +113,13 @@ export default function AddProductPage() {
       });
 
       if (response.success) {
-        setSuccess(true);
-        setMessage("Product created successfully!");
-        setTimeout(() => {
-          router.push("/admin/products");
-        }, 1500);
+        showToast("Product created successfully!", "success");
+        router.push("/admin/products");
       } else {
-        setSuccess(false);
-        setMessage(`Failed: ${response.message}`);
+        showToast(`Failed: ${response.message}`, "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server. Make sure backend is running.");
+      showToast("Cannot connect to server. Make sure backend is running.", "error");
     } finally {
       setLoading(false);
     }
@@ -184,11 +178,7 @@ export default function AddProductPage() {
         </h2>
       </div>
 
-      {message && (
-        <div className={`p-4 rounded-xl text-sm font-vercetti ${success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
-          {message}
-        </div>
-      )}
+
 
       {/* 4. & 5. Area Form - Menggunakan Grid Per Baris */}
       <form onSubmit={handleSubmit} className="space-y-6">

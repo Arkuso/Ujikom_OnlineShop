@@ -5,31 +5,32 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import authService from "@/services/authService";
 import { useAuthStore } from "@/lib/useAuthstore";
+import { useToastStore } from "@/lib/useToaststore";
 
 export default function LoginPage() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
+  const { showToast } = useToastStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       const response = await authService.login({ email, password });
       if (response.success && response.data) {
+        showToast("Login successful. Welcome back!", "success");
         login(response.data.user, response.data.token);
         window.dispatchEvent(new Event('storage')); // Force profile update
         router.push("/");
       } else {
-        setError(response.message || "Invalid credentials.");
+        showToast(response.message || "Invalid credentials.", "error");
       }
     } catch {
-      setError("Cannot connect to server. Check your connection.");
+      showToast("Cannot connect to server. Check your connection.", "error");
     } finally {
       setLoading(false);
     }
@@ -50,11 +51,7 @@ export default function LoginPage() {
           </h2>
         </div>
 
-        {error && (
-          <div className="mb-6 rounded-2xl border border-rose-100 bg-rose-50 px-5 py-4 text-center font-vercetti text-xs font-medium uppercase tracking-widest text-rose-600">
-            {error}
-          </div>
-        )}
+
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div className="space-y-2">

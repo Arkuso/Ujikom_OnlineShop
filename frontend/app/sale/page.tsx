@@ -8,15 +8,16 @@ import { Product } from "@/types/product";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useToastStore } from "@/lib/useToaststore";
 
 export default function SalePage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { showToast } = useToastStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -43,10 +44,10 @@ export default function SalePage() {
         if (productResponse.success) {
           setProducts(productResponse.data || []);
         } else {
-          setMessage(productResponse.message || "Failed to load products.");
+          showToast(productResponse.message || "Failed to load products.", "error");
         }
       } catch {
-        setMessage("Connection failed. Check your network.");
+        showToast("Connection failed. Check your network.", "error");
       }
 
       try {
@@ -165,10 +166,6 @@ export default function SalePage() {
         {loading ? (
           <div className="min-h-[40vh] flex items-center justify-center">
             <div className="w-10 h-10 border-4 border-black/10 border-t-black rounded-full animate-spin"></div>
-          </div>
-        ) : message ? (
-          <div className="mx-auto max-w-xl rounded-2xl border border-rose-100 bg-rose-50 px-10 py-8 text-center text-[10px] font-bold uppercase tracking-widest text-rose-600">
-            {message}
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="mx-auto max-w-2xl rounded-3xl bg-white px-10 py-24 text-center shadow-sm border border-black/5">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import cartService from "@/services/cartService";
 import { useCartStore } from "@/lib/useCartstore";
+import { useToastStore } from "@/lib/useToaststore";
 import { getValidToken } from "@/lib/authSession";
 import CartItem from "@/components/CartItem";
 import { CartItem as CartItemType } from "@/types/cart";
@@ -12,10 +13,9 @@ import { CartItem as CartItemType } from "@/types/cart";
 export default function CartPage() {
   const router = useRouter();
   const fetchGlobalCart = useCartStore((state) => state.fetchCart);
+  const { showToast } = useToastStore();
   const [cartItems, setCartItems] = useState<CartItemType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
@@ -34,10 +34,10 @@ export default function CartPage() {
       if (response.success && response.data) {
         setCartItems(response.data);
       } else {
-        setMessage(response.message || "Failed to load collection.");
+        showToast(response.message || "Failed to load collection.", "error");
       }
     } catch {
-      setMessage("Connection lost. Resetting index stream.");
+      showToast("Connection lost. Resetting index stream.", "error");
     } finally {
       setLoading(false);
     }
@@ -49,17 +49,13 @@ export default function CartPage() {
       const response = await cartService.removeItem(id);
       if (response.success) {
         setCartItems((prev) => prev.filter((item) => item.id !== id));
-        setSuccess(true);
-        setMessage("Item removed successfully.");
-        setTimeout(() => setMessage(""), 2500);
+        showToast("Item removed successfully.", "success");
         await fetchGlobalCart();
       } else {
-        setSuccess(false);
-        setMessage(response.message || "Removal failure.");
+        showToast(response.message || "Removal failure.", "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Error communicating with integration engine.");
+      showToast("Error communicating with integration engine.", "error");
     } finally {
       setRemovingId(null);
     }
@@ -76,17 +72,13 @@ export default function CartPage() {
       const response = await cartService.updateQuantity(item.id, nextQuantity);
       if (response.success && response.data) {
         setCartItems(response.data);
-        setSuccess(true);
-        setMessage("Quantity updated.");
-        setTimeout(() => setMessage(""), 1500);
+        showToast("Quantity updated.", "success");
         await fetchGlobalCart();
       } else {
-        setSuccess(false);
-        setMessage(response.message || "Update skipped.");
+        showToast(response.message || "Update skipped.", "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Link failed.");
+      showToast("Link failed.", "error");
     } finally {
       setUpdatingId(null);
     }
@@ -140,11 +132,6 @@ export default function CartPage() {
             </div>
 
             <div className="space-y-0">
-              {message && (
-                <div className={`p-4 text-center text-sm font-vercetti mb-4 ${success ? 'text-emerald-600' : 'text-rose-600'}`}>
-                  {message}
-                </div>
-              )}
               {cartItems.map((item) => (
                 <CartItem 
                   key={item.id}

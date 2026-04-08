@@ -14,7 +14,8 @@
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.5",
           "Microsoft.EntityFrameworkCore.SqlServer": "10.0.5",
           "Microsoft.EntityFrameworkCore.Tools": "10.0.5",
-          "Swashbuckle.AspNetCore": "6.6.2"
+          "Swashbuckle.AspNetCore": "6.6.2",
+          "Xendit.net": "1.1.0"
         },
         "runtime": {
           "Backend.dll": {}
@@ -78,6 +79,14 @@
           "lib/net6.0/Humanizer.dll": {
             "assemblyVersion": "2.14.0.0",
             "fileVersion": "2.14.1.48190"
+          }
+        }
+      },
+      "Macross.Json.Extensions/2.1.0-beta4": {
+        "runtime": {
+          "lib/netstandard2.1/Macross.Json.Extensions.dll": {
+            "assemblyVersion": "2.1.0.21206",
+            "fileVersion": "2.1.0.0"
           }
         }
       },
@@ -838,6 +847,17 @@
             "fileVersion": "9.0.425.16305"
           }
         }
+      },
+      "Xendit.net/1.1.0": {
+        "dependencies": {
+          "Macross.Json.Extensions": "2.1.0-beta4"
+        },
+        "runtime": {
+          "lib/net5.0/Xendit.net.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.1.0.0"
+          }
+        }
       }
     }
   },
@@ -888,6 +908,13 @@
       "sha512": "sha512-lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "path": "humanizer.core/2.14.1",
       "hashPath": "humanizer.core.2.14.1.nupkg.sha512"
+    },
+    "Macross.Json.Extensions/2.1.0-beta4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-bokyMC2gYUE1Dsahz7qCruZ59LbZGM+8757fCW+CaNfS0E3f+LQTVOY7bzx/F8FBpQtE0lhh6Vv2URRGspm3wg==",
+      "path": "macross.json.extensions/2.1.0-beta4",
+      "hashPath": "macross.json.extensions.2.1.0-beta4.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/10.0.5": {
       "type": "package",
@@ -1217,6 +1244,13 @@
       "sha512": "sha512-o94k2RKuAce3GeDMlUvIXlhVa1kWpJw95E6C9LwW0KlG0nj5+SgCiIxJ2Eroqb9sLtG1mEMbFttZIBZ13EJPvQ==",
       "path": "system.security.cryptography.protecteddata/9.0.4",
       "hashPath": "system.security.cryptography.protecteddata.9.0.4.nupkg.sha512"
+    },
+    "Xendit.net/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-1JL5xywKDr9oOKCsopBiOHXnUVZ/bWDMmZndvXh00Y/gEYk817+jKcsHla7hDwEtcDFleP8dWgAL4+qwEeI8TA==",
+      "path": "xendit.net/1.1.0",
+      "hashPath": "xendit.net.1.1.0.nupkg.sha512"
     }
   }
 }

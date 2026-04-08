@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import productService from "@/services/productService";
+import { useToastStore } from "@/lib/useToaststore";
 
 interface Product {
   id: number;
@@ -15,10 +16,9 @@ interface Product {
 }
 
 export default function ProductsPage() {
+  const { showToast } = useToastStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
   const [search, setSearch] = useState("");
 
   // Add Stock state
@@ -49,19 +49,14 @@ export default function ProductsPage() {
     try {
       const response = await productService.delete(id);
       if (response.success) {
-        setSuccess(true);
-        setMessage(`"${name}" has been deleted.`);
+        showToast(`"${name}" has been deleted.`, "success");
         setProducts(products.filter((p) => p.id !== id));
       } else {
-        setSuccess(false);
-        setMessage(`Delete failed: ${response.message}`);
+        showToast(`Delete failed: ${response.message}`, "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     }
-
-    setTimeout(() => setMessage(""), 3000);
   };
 
   const handleAddStock = async (productId: number) => {
@@ -73,8 +68,7 @@ export default function ProductsPage() {
       const response = await productService.addStock(productId, qty);
 
       if (response.success) {
-        setSuccess(true);
-        setMessage(`Stock updated! Added ${qty} items.`);
+        showToast(`Stock updated! Added ${qty} items.`, "success");
         setProducts(
           products.map((p) =>
             p.id === productId
@@ -85,17 +79,13 @@ export default function ProductsPage() {
         setStockModal(null);
         setQuantityToAdd("");
       } else {
-        setSuccess(false);
-        setMessage(`Failed: ${response.message}`);
+        showToast(`Failed: ${response.message}`, "error");
       }
     } catch {
-      setSuccess(false);
-      setMessage("Cannot connect to server.");
+      showToast("Cannot connect to server.", "error");
     } finally {
       setStockLoading(false);
     }
-
-    setTimeout(() => setMessage(""), 3000);
   };
 
   const filtered = products.filter(
@@ -160,12 +150,7 @@ export default function ProductsPage() {
           </Link>
         </div>
 
-        {/* Message */}
-        {message && (
-          <div className={`p-4 mb-8 rounded-xl font-vercetti text-sm ${success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
-            {message}
-          </div>
-        )}
+
 
         {/* Search & Add Button */}
         <div className="flex flex-col md:flex-row items-center gap-4 mb-8">

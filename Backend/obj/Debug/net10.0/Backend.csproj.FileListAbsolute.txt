@@ -364,3 +364,5 @@ D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\refint\Backend.dll
 D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\Backend.pdb
 D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\Backend.genruntimeconfig.cache
 D:\Project_Ujikom\OnlineShop\Backend\obj\Debug\net10.0\ref\Backend.dll
+D:\Project_Ujikom\OnlineShop\backend\bin\Debug\net10.0\Macross.Json.Extensions.dll
+D:\Project_Ujikom\OnlineShop\backend\bin\Debug\net10.0\Xendit.net.dll
